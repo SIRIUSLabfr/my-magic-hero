@@ -1,22 +1,30 @@
 import { useState, useEffect } from 'react';
 import ParticleBackground from '@/components/ui/ParticleBackground';
 import WelcomeScreen from '@/components/onboarding/WelcomeScreen';
-import FarbwahlScreen from '@/components/onboarding/FarbwahlScreen';
-import WeltwahlScreen from '@/components/onboarding/WeltwahlScreen';
-import SoundwahlScreen from '@/components/onboarding/SoundwahlScreen';
-import KraeftewahlScreen from '@/components/onboarding/KraeftewahlScreen';
+import HautfarbeScreen from '@/components/onboarding/HautfarbeScreen';
+import HaarfarbeScreen from '@/components/onboarding/HaarfarbeScreen';
+import FrisurScreen from '@/components/onboarding/FrisurScreen';
+import OutfitScreen from '@/components/onboarding/OutfitScreen';
+import UmhangfarbeScreen from '@/components/onboarding/UmhangfarbeScreen';
+import WeltSoundScreen from '@/components/onboarding/WeltSoundScreen';
 import HeldinErwachtScreen from '@/components/onboarding/HeldinErwachtScreen';
 import HeldenPlatz from '@/components/home/HeldenPlatz';
 import GeheimschriftTurm from '@/components/lesen/GeheimschriftTurm';
 import KreativHoehle from '@/components/kreativ/KreativHoehle';
 import { useProfil } from '@/hooks/useProfil';
-import { FARBEN } from '@/types/profil';
-import type { Welt, SoundProfil, Superkraft } from '@/types/profil';
+import type { Welt, SoundProfil, Frisur, Outfit } from '@/types/profil';
 
-type Screen = 'welcome' | 'farbe' | 'welt' | 'sound' | 'kraefte' | 'heldin' | 'home' | 'geheimschrift' | 'kreativ';
+type Screen =
+  | 'welcome' | 'hautfarbe' | 'haarfarbe' | 'frisur' | 'outfit' | 'umhangfarbe' | 'weltsound' | 'heldin'
+  | 'home' | 'geheimschrift' | 'kreativ';
 
 export default function Index() {
-  const { profil, existingProfil, setFarbe, setWelt, setSoundProfil, setSuperkraefte, setName, trackScreenTime, updateLernfortschritt, save, reset } = useProfil();
+  const {
+    profil, existingProfil, updateAvatarConfig,
+    setWelt, setSoundProfil, setSuperkraefte, setName,
+    trackScreenTime, updateLernfortschritt, save, reset,
+  } = useProfil();
+
   const [screen, setScreen] = useState<Screen>('welcome');
   const [transitioning, setTransitioning] = useState(false);
 
@@ -33,18 +41,11 @@ export default function Index() {
     }, 400);
   };
 
-  const handleFarbe = (farbe: string) => { setFarbe(farbe); goTo('welt'); };
-  const handleWelt = (welt: Welt, explored: string[]) => { setWelt(welt, explored); goTo('sound'); };
-  const handleSound = (sound: SoundProfil, playCount: number) => { setSoundProfil(sound, playCount); goTo('kraefte'); };
-  const handleKraefte = (kraefte: Superkraft[]) => { setSuperkraefte(kraefte); goTo('heldin'); };
   const handleFinish = () => { trackScreenTime(); save(); goTo('home'); };
   const handleNewStart = () => { reset(); goTo('welcome'); };
 
-  const particleColor = profil.avatar.hauptfarbe
-    ? FARBEN.find(f => f.id === profil.avatar.hauptfarbe)?.hex || '#facc15'
-    : '#facc15';
+  const heldenfarbe = profil.avatar.config.umhangfarbe || '#facc15';
 
-  // Full-screen modules without particle overlay
   if (screen === 'kreativ') {
     return <KreativHoehle onZurueck={() => setScreen('home')} />;
   }
@@ -52,10 +53,11 @@ export default function Index() {
   if (screen === 'geheimschrift') {
     return (
       <div className="relative min-h-screen overflow-hidden bg-background">
-        <ParticleBackground color={particleColor} count={15} />
+        <ParticleBackground color={heldenfarbe} count={15} />
         <div className="relative z-10">
           <GeheimschriftTurm
-            heldenfarbe={particleColor}
+            heldenfarbe={heldenfarbe}
+            avatarConfig={profil.avatar.config}
             lernfortschritt={profil.lernfortschritt}
             onUpdate={updateLernfortschritt}
             onZurueck={() => setScreen('home')}
@@ -67,16 +69,68 @@ export default function Index() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <ParticleBackground color={particleColor} />
+      <ParticleBackground color={heldenfarbe} />
       <div className={`relative z-10 transition-opacity duration-400 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
-        {screen === 'welcome' && <WelcomeScreen onNext={() => goTo('farbe')} />}
-        {screen === 'farbe' && <FarbwahlScreen onSelect={handleFarbe} />}
-        {screen === 'welt' && <WeltwahlScreen onSelect={handleWelt} />}
-        {screen === 'sound' && <SoundwahlScreen onSelect={handleSound} />}
-        {screen === 'kraefte' && <KraeftewahlScreen onSelect={handleKraefte} />}
+
+        {screen === 'welcome' && <WelcomeScreen onNext={() => goTo('hautfarbe')} />}
+
+        {screen === 'hautfarbe' && (
+          <HautfarbeScreen
+            avatarConfig={profil.avatar.config}
+            onSelect={(hex) => { updateAvatarConfig({ hautfarbe: hex }); goTo('haarfarbe'); }}
+            onZurueck={() => goTo('welcome')}
+          />
+        )}
+
+        {screen === 'haarfarbe' && (
+          <HaarfarbeScreen
+            avatarConfig={profil.avatar.config}
+            onSelect={(hex) => { updateAvatarConfig({ haarfarbe: hex }); goTo('frisur'); }}
+            onZurueck={() => goTo('hautfarbe')}
+          />
+        )}
+
+        {screen === 'frisur' && (
+          <FrisurScreen
+            avatarConfig={profil.avatar.config}
+            onSelect={(f: Frisur) => { updateAvatarConfig({ frisur: f }); goTo('outfit'); }}
+            onZurueck={() => goTo('haarfarbe')}
+          />
+        )}
+
+        {screen === 'outfit' && (
+          <OutfitScreen
+            avatarConfig={profil.avatar.config}
+            onSelect={(o: Outfit) => { updateAvatarConfig({ outfit: o }); goTo('umhangfarbe'); }}
+            onZurueck={() => goTo('frisur')}
+          />
+        )}
+
+        {screen === 'umhangfarbe' && (
+          <UmhangfarbeScreen
+            avatarConfig={profil.avatar.config}
+            onSelect={(hex) => { updateAvatarConfig({ umhangfarbe: hex }); goTo('weltsound'); }}
+            onZurueck={() => goTo('outfit')}
+          />
+        )}
+
+        {screen === 'weltsound' && (
+          <WeltSoundScreen
+            avatarConfig={profil.avatar.config}
+            onSelect={({ maskeAktiv, welt, explored, sound, playCount }) => {
+              updateAvatarConfig({ maskeAktiv });
+              setWelt(welt, explored);
+              setSoundProfil(sound, playCount);
+              goTo('heldin');
+            }}
+            onZurueck={() => goTo('umhangfarbe')}
+          />
+        )}
+
         {screen === 'heldin' && (
           <HeldinErwachtScreen profil={profil} onSetName={setName} onFinish={handleFinish} />
         )}
+
         {screen === 'home' && (
           <HeldenPlatz
             profil={profil}
