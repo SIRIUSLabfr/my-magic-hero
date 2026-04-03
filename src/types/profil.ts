@@ -1,6 +1,18 @@
 export type Welt = 'wald' | 'stadt' | 'unterwasser' | 'weltraum';
 export type SoundProfil = 'mutig' | 'leise' | 'schnell';
 export type Superkraft = 'sehen' | 'schreiben' | 'zaehlen' | 'erschaffen';
+export type Frisur = 'lang' | 'kurz' | 'zopf' | 'locken';
+export type Outfit = 'anzug' | 'kleid' | 'cape' | 'ruestung';
+
+export interface AvatarConfig {
+  hautfarbe: string;
+  haarfarbe: string;
+  frisur: Frisur;
+  augenfarbe: string;
+  outfit: Outfit;
+  umhangfarbe: string;
+  maskeAktiv: boolean;
+}
 
 export interface BuchstabenFortschritt {
   versuche: number;
@@ -18,7 +30,7 @@ export interface Lernfortschritt {
 export interface HeldenschuleProfil {
   avatar: {
     name: string | null;
-    hauptfarbe: string;
+    config: AvatarConfig;
     welt: Welt;
     soundProfil: SoundProfil;
     superkraefte: Superkraft[];
@@ -33,6 +45,47 @@ export interface HeldenschuleProfil {
   lernfortschritt: Lernfortschritt;
   erstellungsDatum: string;
 }
+
+export const HAUTFARBEN = [
+  { id: 'hell', hex: '#FDDCB5' },
+  { id: 'mittelhell', hex: '#E8B88A' },
+  { id: 'mittel', hex: '#C68E5B' },
+  { id: 'oliv', hex: '#A67449' },
+  { id: 'dunkel', hex: '#7B4B2A' },
+  { id: 'dunkelbraun', hex: '#4A2C17' },
+] as const;
+
+export const HAARFARBEN = [
+  { id: 'blond', hex: '#F5D76E' },
+  { id: 'braun', hex: '#6B3E26' },
+  { id: 'schwarz', hex: '#1A1A2E' },
+  { id: 'rot', hex: '#C0392B' },
+  { id: 'lila', hex: '#9B59B6' },
+  { id: 'blau', hex: '#3498DB' },
+] as const;
+
+export const AUGENFARBEN = [
+  { id: 'braun', hex: '#8B4513' },
+  { id: 'blau', hex: '#3498DB' },
+  { id: 'gruen', hex: '#27AE60' },
+  { id: 'grau', hex: '#7F8C8D' },
+  { id: 'lila', hex: '#8E44AD' },
+  { id: 'gold', hex: '#D4AC0D' },
+] as const;
+
+export const FRISUREN: { id: Frisur; emoji: string }[] = [
+  { id: 'lang', emoji: '💇‍♀️' },
+  { id: 'kurz', emoji: '✂️' },
+  { id: 'zopf', emoji: '🎀' },
+  { id: 'locken', emoji: '🌀' },
+];
+
+export const OUTFITS: { id: Outfit; emoji: string }[] = [
+  { id: 'anzug', emoji: '🦸‍♀️' },
+  { id: 'kleid', emoji: '👗' },
+  { id: 'cape', emoji: '🧥' },
+  { id: 'ruestung', emoji: '🛡️' },
+];
 
 export const FARBEN = [
   { id: 'rot', label: 'Rot', hsl: '345 85% 55%', hex: '#e63462' },
@@ -62,3 +115,13 @@ export const KRAEFTE: { id: Superkraft; label: string; emoji: string }[] = [
   { id: 'zaehlen', label: 'Zählen', emoji: '🔢' },
   { id: 'erschaffen', label: 'Erschaffen', emoji: '🎨' },
 ];
+
+export const createEmptyAvatarConfig = (): AvatarConfig => ({
+  hautfarbe: '',
+  haarfarbe: '',
+  frisur: 'lang',
+  augenfarbe: '',
+  outfit: 'anzug',
+  umhangfarbe: '',
+  maskeAktiv: false,
+});

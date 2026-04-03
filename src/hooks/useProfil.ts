@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import type { HeldenschuleProfil, Welt, SoundProfil, Superkraft, Lernfortschritt } from '@/types/profil';
+import type { HeldenschuleProfil, Welt, SoundProfil, Superkraft, Lernfortschritt, AvatarConfig } from '@/types/profil';
+import { createEmptyAvatarConfig } from '@/types/profil';
 
 const STORAGE_KEY = 'heldenschule-profil';
 
@@ -12,7 +13,7 @@ const createEmptyLernfortschritt = (): Lernfortschritt => ({
 const createEmptyProfil = (): HeldenschuleProfil => ({
   avatar: {
     name: null,
-    hauptfarbe: '',
+    config: createEmptyAvatarConfig(),
     welt: 'wald',
     soundProfil: 'mutig',
     superkraefte: [],
@@ -33,9 +34,18 @@ export function useProfil() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return createEmptyProfil();
     const parsed = JSON.parse(saved);
-    // Migrate old profiles missing lernfortschritt
-    if (!parsed.lernfortschritt) {
-      parsed.lernfortschritt = createEmptyLernfortschritt();
+    if (!parsed.lernfortschritt) parsed.lernfortschritt = createEmptyLernfortschritt();
+    // Migrate old profiles without config
+    if (!parsed.avatar.config) {
+      parsed.avatar.config = createEmptyAvatarConfig();
+      if (parsed.avatar.hauptfarbe) {
+        // Map old hauptfarbe to umhangfarbe
+        const FARBEN_MAP: Record<string, string> = {
+          rot: '#e63462', lila: '#9333ea', blau: '#3b82f6',
+          gruen: '#22c55e', gold: '#facc15', pink: '#ec4899',
+        };
+        parsed.avatar.config.umhangfarbe = FARBEN_MAP[parsed.avatar.hauptfarbe] || '#e63462';
+      }
     }
     return parsed;
   });
@@ -47,18 +57,18 @@ export function useProfil() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return null;
     const p = JSON.parse(saved) as HeldenschuleProfil;
-    return p.avatar.hauptfarbe ? p : null;
+    return p.avatar.config?.umhangfarbe ? p : null;
   };
 
   const update = useCallback((updater: (p: HeldenschuleProfil) => HeldenschuleProfil) => {
     setProfil(prev => updater(prev));
   }, []);
 
-  const setFarbe = useCallback((farbe: string) => {
+  const updateAvatarConfig = useCallback((partial: Partial<AvatarConfig>) => {
     const tempo = Date.now() - decisionStartTime.current;
     update(p => ({
       ...p,
-      avatar: { ...p.avatar, hauptfarbe: farbe },
+      avatar: { ...p.avatar, config: { ...p.avatar.config, ...partial } },
       profil: { ...p.profil, entscheidungsTempo: [...p.profil.entscheidungsTempo, tempo] },
     }));
   }, [update]);
@@ -137,7 +147,7 @@ export function useProfil() {
   return {
     profil,
     existingProfil,
-    setFarbe,
+    updateAvatarConfig,
     setWelt,
     setSoundProfil,
     setSuperkraefte,
