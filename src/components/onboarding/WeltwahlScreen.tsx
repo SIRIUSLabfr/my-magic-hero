@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { WELTEN, type Welt } from '@/types/profil';
 import OptionCard from '@/components/ui/OptionCard';
+import MagicButton from '@/components/ui/MagicButton';
 import { useSound } from '@/hooks/useSound';
 
 interface Props {
@@ -25,7 +26,10 @@ export default function WeltwahlScreen({ onSelect }: Props) {
     }
     playTone(330 + WELTEN.findIndex(w => w.id === welt) * 60, 0.5, 'sine', 0.15);
     setSelected(welt);
-    setTimeout(() => onSelect(welt, explored.current), 1200);
+  };
+
+  const handleConfirm = () => {
+    if (selected) onSelect(selected, explored.current);
   };
 
   return (
@@ -50,6 +54,14 @@ export default function WeltwahlScreen({ onSelect }: Props) {
           </OptionCard>
         ))}
       </div>
+
+      {selected && (
+        <div className="animate-screen-enter">
+          <MagicButton onClick={handleConfirm} variant="gold" size="lg">
+            Das passt! ✨
+          </MagicButton>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,13 @@
 import { useState, useCallback, useRef } from 'react';
-import type { HeldenschuleProfil, Welt, SoundProfil, Superkraft } from '@/types/profil';
+import type { HeldenschuleProfil, Welt, SoundProfil, Superkraft, Lernfortschritt } from '@/types/profil';
 
 const STORAGE_KEY = 'heldenschule-profil';
+
+const createEmptyLernfortschritt = (): Lernfortschritt => ({
+  buchstaben: {},
+  sessionsGesamt: 0,
+  durchschnittlicheSessionDauer: 0,
+});
 
 const createEmptyProfil = (): HeldenschuleProfil => ({
   avatar: {
@@ -18,13 +24,20 @@ const createEmptyProfil = (): HeldenschuleProfil => ({
     explorationsStil: 'unbekannt',
     zeitAufScreen: [],
   },
+  lernfortschritt: createEmptyLernfortschritt(),
   erstellungsDatum: new Date().toISOString(),
 });
 
 export function useProfil() {
   const [profil, setProfil] = useState<HeldenschuleProfil>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : createEmptyProfil();
+    if (!saved) return createEmptyProfil();
+    const parsed = JSON.parse(saved);
+    // Migrate old profiles missing lernfortschritt
+    if (!parsed.lernfortschritt) {
+      parsed.lernfortschritt = createEmptyLernfortschritt();
+    }
+    return parsed;
   });
 
   const screenStartTime = useRef<number>(Date.now());
@@ -38,10 +51,7 @@ export function useProfil() {
   };
 
   const update = useCallback((updater: (p: HeldenschuleProfil) => HeldenschuleProfil) => {
-    setProfil(prev => {
-      const next = updater(prev);
-      return next;
-    });
+    setProfil(prev => updater(prev));
   }, []);
 
   const setFarbe = useCallback((farbe: string) => {
@@ -103,6 +113,14 @@ export function useProfil() {
     decisionStartTime.current = Date.now();
   }, [update]);
 
+  const updateLernfortschritt = useCallback((lf: Lernfortschritt) => {
+    setProfil(prev => {
+      const next = { ...prev, lernfortschritt: lf };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   const save = useCallback(() => {
     setProfil(prev => {
       const final = { ...prev, erstellungsDatum: new Date().toISOString() };
@@ -125,6 +143,7 @@ export function useProfil() {
     setSuperkraefte,
     setName,
     trackScreenTime,
+    updateLernfortschritt,
     save,
     reset,
   };

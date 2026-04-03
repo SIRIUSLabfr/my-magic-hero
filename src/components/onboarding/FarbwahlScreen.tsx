@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FARBEN } from '@/types/profil';
 import { useSound } from '@/hooks/useSound';
+import MagicButton from '@/components/ui/MagicButton';
 
 interface Props {
   onSelect: (farbe: string) => void;
@@ -13,7 +14,10 @@ export default function FarbwahlScreen({ onSelect }: Props) {
   const handleTap = (farbe: typeof FARBEN[number]) => {
     playTone(440 + FARBEN.indexOf(farbe) * 80, 0.4, 'sine', 0.2);
     setSelected(farbe.id);
-    setTimeout(() => onSelect(farbe.id), 1000);
+  };
+
+  const handleConfirm = () => {
+    if (selected) onSelect(selected);
   };
 
   return (
@@ -50,6 +54,14 @@ export default function FarbwahlScreen({ onSelect }: Props) {
           />
         ))}
       </div>
+
+      {selected && (
+        <div className="animate-screen-enter">
+          <MagicButton onClick={handleConfirm} variant="gold" size="lg">
+            Das passt! ✨
+          </MagicButton>
+        </div>
+      )}
     </div>
   );
 }

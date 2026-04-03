@@ -112,6 +112,11 @@ export default {
           "50%": { transform: "perspective(800px) rotateY(90deg)" },
           "100%": { transform: "perspective(800px) rotateY(0deg) scale(1.05)" },
         },
+        "wiggle": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-2px)" },
+          "75%": { transform: "translateX(2px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -121,6 +126,7 @@ export default {
         "screen-enter": "screen-enter 0.6s ease-out",
         "confetti-fall": "confetti-fall 3s ease-in forwards",
         "card-flip": "card-flip 0.6s ease-in-out",
+        "wiggle": "wiggle 0.3s ease-in-out",
       },
     },
   },
