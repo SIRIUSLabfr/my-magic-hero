@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import HeldAvatar from '@/components/avatar/HeldAvatar';
 import MagicButton from '@/components/ui/MagicButton';
 import { useSound } from '@/hooks/useSound';
-import { FARBEN, WELTEN } from '@/types/profil';
+import { WELTEN } from '@/types/profil';
 import type { HeldenschuleProfil } from '@/types/profil';
 
 interface Props {
@@ -46,7 +47,6 @@ export default function HeldinErwachtScreen({ profil, onSetName, onFinish }: Pro
   const [showConfetti, setShowConfetti] = useState(false);
   const { playTransformation } = useSound();
 
-  const farbe = FARBEN.find(f => f.id === profil.avatar.hauptfarbe);
   const welt = WELTEN.find(w => w.id === profil.avatar.welt);
 
   const handleFinish = () => {
@@ -64,25 +64,19 @@ export default function HeldinErwachtScreen({ profil, onSetName, onFinish }: Pro
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 animate-screen-enter">
+    <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 animate-screen-enter"
+      style={{ background: welt ? `linear-gradient(180deg, hsl(${welt.farbe}), hsl(${welt.farbe} / 0.3))` : undefined }}
+    >
       {showConfetti && <ConfettiEffect />}
 
       <h1 className="text-title text-center font-display text-foreground">
         Deine Heldin erwacht!
       </h1>
 
-      {/* Avatar preview */}
-      <div
-        className="w-48 h-48 rounded-full flex items-center justify-center animate-gentle-pulse"
-        style={{
-          backgroundColor: farbe?.hex || '#e63462',
-          boxShadow: `0 0 40px ${farbe?.hex || '#e63462'}80, 0 0 80px ${farbe?.hex || '#e63462'}30`,
-        }}
-      >
-        <span className="text-7xl">{welt?.emoji || '✨'}</span>
+      <div className="animate-gentle-pulse">
+        <HeldAvatar config={profil.avatar.config} size={280} />
       </div>
 
-      {/* Name input */}
       <div className="flex flex-col items-center gap-4 w-full max-w-md">
         <label className="text-body-lg font-display text-foreground">
           Wie heißt deine Heldin?

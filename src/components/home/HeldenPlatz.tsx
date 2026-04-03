@@ -1,7 +1,7 @@
-import { FARBEN, WELTEN } from '@/types/profil';
+import HeldAvatar from '@/components/avatar/HeldAvatar';
 import type { HeldenschuleProfil } from '@/types/profil';
+import { WELTEN } from '@/types/profil';
 import OptionCard from '@/components/ui/OptionCard';
-import MagicButton from '@/components/ui/MagicButton';
 
 interface Props {
   profil: HeldenschuleProfil;
@@ -9,27 +9,16 @@ interface Props {
 }
 
 export default function HeldenPlatz({ profil, onNavigate }: Props) {
-  const farbe = FARBEN.find(f => f.id === profil.avatar.hauptfarbe);
   const welt = WELTEN.find(w => w.id === profil.avatar.welt);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 animate-screen-enter">
-      {/* Avatar */}
-      <div
-        className="w-32 h-32 rounded-full flex items-center justify-center animate-gentle-pulse"
-        style={{
-          backgroundColor: farbe?.hex || '#e63462',
-          boxShadow: `0 0 30px ${farbe?.hex || '#e63462'}60`,
-        }}
-      >
-        <span className="text-5xl">{welt?.emoji || '✨'}</span>
-      </div>
+      <HeldAvatar config={profil.avatar.config} size={200} />
 
       <h1 className="text-hero text-center font-display text-foreground">
         {profil.avatar.name || 'Deine Heldin'}
       </h1>
 
-      {/* Orte */}
       <div className="flex flex-col gap-5 w-full max-w-md">
         <OptionCard
           selected={false}
@@ -50,8 +39,7 @@ export default function HeldenPlatz({ profil, onNavigate }: Props) {
         </OptionCard>
 
         <div
-          className="rounded-3xl px-6 py-5 flex items-center gap-5 opacity-40 cursor-default"
-          style={{ backgroundColor: 'hsl(var(--card))' }}
+          className="rounded-3xl px-6 py-5 flex items-center gap-5 opacity-40 cursor-default bg-card"
         >
           <span className="text-5xl grayscale">🔢</span>
           <div className="flex flex-col">

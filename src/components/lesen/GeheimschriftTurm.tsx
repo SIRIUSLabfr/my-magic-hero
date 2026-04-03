@@ -1,12 +1,14 @@
 import { useState, useRef, useCallback } from 'react';
 import { BUCHSTABEN_DATEN } from '@/types/buchstaben';
-import type { Lernfortschritt } from '@/types/profil';
+import type { Lernfortschritt, AvatarConfig } from '@/types/profil';
 import BuchstabeScreen from './BuchstabeScreen';
 import SessionEndeScreen from './SessionEndeScreen';
+import HeldAvatar from '@/components/avatar/HeldAvatar';
 import MagicButton from '@/components/ui/MagicButton';
 
 interface Props {
   heldenfarbe: string;
+  avatarConfig: AvatarConfig;
   lernfortschritt: Lernfortschritt;
   onUpdate: (lf: Lernfortschritt) => void;
   onZurueck: () => void;
@@ -14,20 +16,18 @@ interface Props {
 
 const SESSION_SIZE = 5;
 
-export default function GeheimschriftTurm({ heldenfarbe, lernfortschritt, onUpdate, onZurueck }: Props) {
+export default function GeheimschriftTurm({ heldenfarbe, avatarConfig, lernfortschritt, onUpdate, onZurueck }: Props) {
   const [sessionIndex, setSessionIndex] = useState(0);
   const [currentInSession, setCurrentInSession] = useState(0);
   const [sessionDone, setSessionDone] = useState(false);
   const sessionStart = useRef(Date.now());
   const lf = useRef<Lernfortschritt>({ ...lernfortschritt });
 
-  // Pick which 5 letters for this session
   const sessionBuchstaben = BUCHSTABEN_DATEN.slice(
     (sessionIndex * SESSION_SIZE) % BUCHSTABEN_DATEN.length,
     ((sessionIndex * SESSION_SIZE) % BUCHSTABEN_DATEN.length) + SESSION_SIZE
   );
 
-  // Handle wrap-around
   const effectiveBuchstaben = sessionBuchstaben.length < SESSION_SIZE
     ? [...sessionBuchstaben, ...BUCHSTABEN_DATEN.slice(0, SESSION_SIZE - sessionBuchstaben.length)]
     : sessionBuchstaben;
@@ -53,7 +53,6 @@ export default function GeheimschriftTurm({ heldenfarbe, lernfortschritt, onUpda
     };
 
     if (currentInSession + 1 >= SESSION_SIZE) {
-      // Session done
       const dauer = Math.round((Date.now() - sessionStart.current) / 1000);
       const totalSessions = lf.current.sessionsGesamt + 1;
       const avgDauer = Math.round(
@@ -83,6 +82,7 @@ export default function GeheimschriftTurm({ heldenfarbe, lernfortschritt, onUpda
       <SessionEndeScreen
         buchstaben={effectiveBuchstaben.map(b => b.buchstabe)}
         heldenfarbe={heldenfarbe}
+        avatarConfig={avatarConfig}
         onWeiter={handleWeiter}
         onZurueck={onZurueck}
       />
@@ -91,11 +91,11 @@ export default function GeheimschriftTurm({ heldenfarbe, lernfortschritt, onUpda
 
   return (
     <div className="relative min-h-screen">
-      {/* Back button */}
-      <div className="absolute top-6 left-6 z-20">
+      <div className="absolute top-6 left-6 z-20 flex items-center gap-3">
         <MagicButton onClick={onZurueck} variant="secondary" size="lg">
           🏠
         </MagicButton>
+        <HeldAvatar config={avatarConfig} size={60} />
       </div>
 
       <BuchstabeScreen
