@@ -126,6 +126,7 @@ export default {
         "screen-enter": "screen-enter 0.6s ease-out",
         "confetti-fall": "confetti-fall 3s ease-in forwards",
         "card-flip": "card-flip 0.6s ease-in-out",
+        "wiggle": "wiggle 0.3s ease-in-out",
       },
     },
   },
