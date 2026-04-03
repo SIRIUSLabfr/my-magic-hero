@@ -5,7 +5,14 @@ interface Props {
   count?: number;
 }
 
-export default function ParticleBackground({ color = 'hsl(45 100% 60%)', count = 25 }: Props) {
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+export default function ParticleBackground({ color = '#facc15', count = 25 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -48,10 +55,9 @@ export default function ParticleBackground({ color = 'hsl(45 100% 60%)', count =
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = color.replace(')', ` / ${alpha})`).replace('hsl(', 'hsla(');
+        ctx.fillStyle = hexToRgba(color, alpha);
         ctx.fill();
 
-        // Star shape for larger particles
         if (p.size > 2) {
           ctx.beginPath();
           for (let i = 0; i < 4; i++) {
@@ -59,7 +65,7 @@ export default function ParticleBackground({ color = 'hsl(45 100% 60%)', count =
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p.x + Math.cos(angle) * p.size * 2, p.y + Math.sin(angle) * p.size * 2);
           }
-          ctx.strokeStyle = color.replace(')', ` / ${alpha * 0.5})`).replace('hsl(', 'hsla(');
+          ctx.strokeStyle = hexToRgba(color, alpha * 0.5);
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }

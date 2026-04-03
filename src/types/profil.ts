@@ -2,6 +2,19 @@ export type Welt = 'wald' | 'stadt' | 'unterwasser' | 'weltraum';
 export type SoundProfil = 'mutig' | 'leise' | 'schnell';
 export type Superkraft = 'sehen' | 'schreiben' | 'zaehlen' | 'erschaffen';
 
+export interface BuchstabenFortschritt {
+  versuche: number;
+  richtigBeimErstenVersuch: number;
+  letzterVersuch: string;
+  audioAbgespielt: number;
+}
+
+export interface Lernfortschritt {
+  buchstaben: Record<string, BuchstabenFortschritt>;
+  sessionsGesamt: number;
+  durchschnittlicheSessionDauer: number;
+}
+
 export interface HeldenschuleProfil {
   avatar: {
     name: string | null;
@@ -17,6 +30,7 @@ export interface HeldenschuleProfil {
     explorationsStil: 'sofort' | 'probierend' | 'unbekannt';
     zeitAufScreen: number[];
   };
+  lernfortschritt: Lernfortschritt;
   erstellungsDatum: string;
 }
 
