@@ -8,7 +8,7 @@ interface Props {
 
 export default function KreativHoehle({ onZurueck }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [currentColor, setCurrentColor] = useState(FARBEN[0].hex);
+  const [currentColor, setCurrentColor] = useState<string>(FARBEN[0].hex);
   const [isEraser, setIsEraser] = useState(false);
   const drawing = useRef(false);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
