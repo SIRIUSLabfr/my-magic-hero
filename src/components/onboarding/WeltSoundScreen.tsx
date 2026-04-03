@@ -18,12 +18,12 @@ export default function WeltSoundScreen({ avatarConfig, onSelect, onZurueck }: P
   const [sound, setSound] = useState<SoundProfil | ''>('');
   const explored = useRef<string[]>([]);
   const playCount = useRef(0);
-  const { playChime, playMystery, playEnergy } = useSound();
+  const { playMutig, playLeise, playSchnell } = useSound();
 
   const soundPlayers: Record<SoundProfil, () => void> = {
-    mutig: playChime,
-    leise: playMystery,
-    schnell: playEnergy,
+    mutig: playMutig,
+    leise: playLeise,
+    schnell: playSchnell,
   };
 
   const handleWeltTap = (w: Welt) => {
