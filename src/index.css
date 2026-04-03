@@ -1,96 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 280 40% 12%;
+    --foreground: 300 100% 97%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 280 35% 18%;
+    --card-foreground: 300 100% 97%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 280 35% 18%;
+    --popover-foreground: 300 100% 97%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 345 85% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 280 60% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 280 30% 22%;
+    --muted-foreground: 280 20% 70%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 280 40% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 0% 0%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 280 30% 30%;
+    --input: 280 30% 25%;
+    --ring: 345 85% 55%;
 
-    --radius: 0.5rem;
+    --radius: 1.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Heldenschule custom tokens */
+    --magic-red: 345 85% 55%;
+    --magic-pink: 330 80% 65%;
+    --magic-purple: 280 60% 50%;
+    --magic-gold: 45 100% 60%;
+    --magic-blue: 220 80% 55%;
+    --magic-green: 150 60% 45%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --glow-primary: 0 0 20px hsl(345 85% 55% / 0.5), 0 0 60px hsl(345 85% 55% / 0.2);
+    --glow-gold: 0 0 20px hsl(45 100% 60% / 0.5), 0 0 60px hsl(45 100% 60% / 0.2);
+    --glow-purple: 0 0 20px hsl(280 60% 50% / 0.5), 0 0 60px hsl(280 60% 50% / 0.2);
 
-    --sidebar-primary: 240 5.9% 10%;
+    --gradient-magic: linear-gradient(135deg, hsl(345 85% 55%), hsl(280 60% 50%));
+    --gradient-night: linear-gradient(180deg, hsl(280 40% 8%), hsl(280 40% 16%));
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --font-display: 'Fredoka', sans-serif;
+    --font-body: 'Nunito', sans-serif;
   }
 }
 
@@ -101,5 +63,114 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .touch-target {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 80px;
+    min-height: 80px;
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-gold {
+    box-shadow: var(--glow-gold);
+  }
+
+  .glow-purple {
+    box-shadow: var(--glow-purple);
+  }
+
+  .text-display {
+    font-family: var(--font-display);
+  }
+
+  .text-body {
+    font-family: var(--font-body);
+  }
+}
+
+/* Particle animation */
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(var(--drift, 20px)) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes gentle-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.15);
+  }
+}
+
+@keyframes soft-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px hsl(var(--magic-gold) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--magic-gold) / 0.6), 0 0 60px hsl(var(--magic-gold) / 0.2);
+  }
+}
+
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes card-flip {
+  0% {
+    transform: perspective(800px) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(800px) rotateY(90deg);
+  }
+  100% {
+    transform: perspective(800px) rotateY(0deg) scale(1.05);
   }
 }
