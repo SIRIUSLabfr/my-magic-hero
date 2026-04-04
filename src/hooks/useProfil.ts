@@ -29,6 +29,17 @@ const createEmptyProfil = (): HeldenschuleProfil => ({
   erstellungsDatum: new Date().toISOString(),
 });
 
+// Migrate old outfit types to new ones
+function migrateOutfit(outfit: string): AvatarConfig['outfit'] {
+  const map: Record<string, AvatarConfig['outfit']> = {
+    anzug: 'spinne',
+    kleid: 'glueck',
+    cape: 'krieger',
+    ruestung: 'ozean',
+  };
+  return map[outfit] || (outfit as AvatarConfig['outfit']) || 'spinne';
+}
+
 export function useProfil() {
   const [profil, setProfil] = useState<HeldenschuleProfil>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -39,12 +50,18 @@ export function useProfil() {
     if (!parsed.avatar.config) {
       parsed.avatar.config = createEmptyAvatarConfig();
       if (parsed.avatar.hauptfarbe) {
-        // Map old hauptfarbe to umhangfarbe
         const FARBEN_MAP: Record<string, string> = {
           rot: '#e63462', lila: '#9333ea', blau: '#3b82f6',
           gruen: '#22c55e', gold: '#facc15', pink: '#ec4899',
         };
         parsed.avatar.config.umhangfarbe = FARBEN_MAP[parsed.avatar.hauptfarbe] || '#e63462';
+      }
+    }
+    // Migrate old outfit values
+    if (parsed.avatar.config) {
+      const o = parsed.avatar.config.outfit;
+      if (o === 'anzug' || o === 'kleid' || o === 'cape' || o === 'ruestung') {
+        parsed.avatar.config.outfit = migrateOutfit(o);
       }
     }
     return parsed;

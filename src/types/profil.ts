@@ -2,7 +2,7 @@ export type Welt = 'wald' | 'stadt' | 'unterwasser' | 'weltraum';
 export type SoundProfil = 'mutig' | 'leise' | 'schnell';
 export type Superkraft = 'sehen' | 'schreiben' | 'zaehlen' | 'erschaffen';
 export type Frisur = 'lang' | 'kurz' | 'zopf' | 'locken';
-export type Outfit = 'anzug' | 'kleid' | 'cape' | 'ruestung';
+export type Outfit = 'spinne' | 'glueck' | 'krieger' | 'ozean';
 
 export interface AvatarConfig {
   hautfarbe: string;
@@ -80,11 +80,11 @@ export const FRISUREN: { id: Frisur; emoji: string }[] = [
   { id: 'locken', emoji: '🌀' },
 ];
 
-export const OUTFITS: { id: Outfit; emoji: string }[] = [
-  { id: 'anzug', emoji: '🦸‍♀️' },
-  { id: 'kleid', emoji: '👗' },
-  { id: 'cape', emoji: '🧥' },
-  { id: 'ruestung', emoji: '🛡️' },
+export const OUTFITS: { id: Outfit; emoji: string; label: string }[] = [
+  { id: 'spinne', emoji: '🕷️', label: 'Spinnen-Heldin' },
+  { id: 'glueck', emoji: '🐞', label: 'Glücks-Heldin' },
+  { id: 'krieger', emoji: '⚔️', label: 'Krieger-Heldin' },
+  { id: 'ozean', emoji: '🌊', label: 'Ozean-Heldin' },
 ];
 
 export const FARBEN = [
@@ -121,7 +121,7 @@ export const createEmptyAvatarConfig = (): AvatarConfig => ({
   haarfarbe: '',
   frisur: 'lang',
   augenfarbe: '',
-  outfit: 'anzug',
+  outfit: 'spinne',
   umhangfarbe: '',
   maskeAktiv: false,
 });

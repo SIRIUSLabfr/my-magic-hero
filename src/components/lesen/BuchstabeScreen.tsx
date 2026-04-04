@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { BuchstabeData } from '@/types/buchstaben';
-import { useSprache } from '@/hooks/useSprache';
 import { useSound } from '@/hooks/useSound';
 
 interface Props {
@@ -10,15 +9,12 @@ interface Props {
 }
 
 export default function BuchstabeScreen({ data, heldenfarbe, onRichtig }: Props) {
-  const { sppielen } = useSprache();
   const { playChime, playTone } = useSound();
   const [fehler, setFehler] = useState(0);
-  const [audioCount, setAudioCount] = useState(0);
   const [wackelId, setWackelId] = useState<number | null>(null);
   const [richtig, setRichtig] = useState(false);
   const [hintActive, setHintActive] = useState(false);
 
-  // Shuffle images once per buchstabe
   const shuffledBilder = useMemo(() => {
     const arr = data.bilder.map((b, i) => ({ ...b, origIndex: i }));
     for (let i = arr.length - 1; i > 0; i--) {
@@ -28,13 +24,6 @@ export default function BuchstabeScreen({ data, heldenfarbe, onRichtig }: Props)
     return arr;
   }, [data.buchstabe]);
 
-  // Speak letter on mount
-  useEffect(() => {
-    const timer = setTimeout(() => sppielen(data.laut), 400);
-    return () => clearTimeout(timer);
-  }, [data.buchstabe]);
-
-  // Show hint after 2 wrong
   useEffect(() => {
     if (fehler >= 2) setHintActive(true);
   }, [fehler]);
@@ -45,7 +34,7 @@ export default function BuchstabeScreen({ data, heldenfarbe, onRichtig }: Props)
     if (bild.istRichtig) {
       setRichtig(true);
       playChime();
-      setTimeout(() => onRichtig(fehler === 0, audioCount), 1500);
+      setTimeout(() => onRichtig(fehler === 0, 0), 1500);
     } else {
       playTone(200, 0.2, 'sine', 0.1);
       setFehler(f => f + 1);
@@ -54,25 +43,18 @@ export default function BuchstabeScreen({ data, heldenfarbe, onRichtig }: Props)
     }
   };
 
-  const handleBuchstabeTap = () => {
-    sppielen(data.laut);
-    setAudioCount(c => c + 1);
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-10 px-8 animate-screen-enter">
       {/* Big letter */}
-      <button
-        onClick={handleBuchstabeTap}
+      <div
         className={`text-[200px] leading-none font-display font-bold transition-all duration-500 ${richtig ? 'opacity-0 -translate-y-20' : ''}`}
         style={{
           color: heldenfarbe,
           textShadow: `0 0 40px ${heldenfarbe}80, 0 0 80px ${heldenfarbe}30`,
-          touchAction: 'manipulation',
         }}
       >
         {data.buchstabe}
-      </button>
+      </div>
 
       {/* Image choices */}
       <div className="flex gap-8">

@@ -15,13 +15,13 @@ export default function OutfitScreen({ avatarConfig, onSelect, onZurueck }: Prop
   const [selected, setSelected] = useState<Outfit | ''>(avatarConfig.outfit || '');
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 animate-screen-enter">
+    <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-8 animate-screen-enter">
       <button onClick={onZurueck} className="absolute top-6 left-6 text-muted-foreground text-body-lg font-display" style={{ touchAction: 'manipulation' }}>
         ← Zurück
       </button>
 
       <div className="transition-transform duration-300" style={{ transform: selected ? 'scale(1)' : 'scale(0.95)' }}>
-        <HeldAvatar config={{ ...avatarConfig, outfit: selected || 'anzug', umhangfarbe: avatarConfig.umhangfarbe || '#999' }} size={200} />
+        <HeldAvatar config={{ ...avatarConfig, outfit: (selected || 'spinne') as Outfit, umhangfarbe: avatarConfig.umhangfarbe || '#999' }} size={200} />
       </div>
 
       <p className="text-title text-center font-display text-foreground">
@@ -34,9 +34,10 @@ export default function OutfitScreen({ avatarConfig, onSelect, onZurueck }: Prop
             key={o.id}
             selected={selected === o.id}
             onClick={() => setSelected(o.id)}
-            className="flex flex-col items-center gap-2 w-[140px] h-[140px] justify-center"
+            className="flex flex-col items-center gap-2 w-[160px] h-[180px] justify-center"
           >
             <span className="text-5xl">{o.emoji}</span>
+            <span className="text-sm font-display text-card-foreground">{o.label}</span>
           </OptionCard>
         ))}
       </div>
