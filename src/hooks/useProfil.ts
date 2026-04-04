@@ -8,6 +8,7 @@ const createEmptyLernfortschritt = (): Lernfortschritt => ({
   buchstaben: {},
   sessionsGesamt: 0,
   durchschnittlicheSessionDauer: 0,
+  sternenstaub: 0,
 });
 
 const createEmptyProfil = (): HeldenschuleProfil => ({
