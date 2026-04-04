@@ -7,16 +7,19 @@ export default function AvatarUmhang({ farbe }: Props) {
     <g className="umhang">
       {/* Cape flowing behind body */}
       <path
-        d="M100 120 Q80 180 70 280 Q75 320 110 340 L150 345 L190 340 Q225 320 230 280 Q220 180 200 120 Z"
+        d="M105 130 Q82 185 72 275 Q75 310 115 330 L150 335 L185 330 Q225 310 228 275 Q218 185 195 130 Z"
         fill={farbe}
-        opacity="0.9"
+        opacity="0.85"
       />
-      {/* Cape inner shadow */}
+      {/* Cape inner shadow for depth */}
       <path
-        d="M110 130 Q95 190 88 270 Q93 305 120 325 L150 328 L180 325 Q207 305 212 270 Q205 190 190 130 Z"
+        d="M115 140 Q98 195 90 265 Q95 298 125 318 L150 322 L175 318 Q205 298 210 265 Q202 195 185 140 Z"
         fill={farbe}
-        opacity="0.6"
+        opacity="0.55"
       />
+      {/* Cape fold highlights */}
+      <path d="M95 180 Q100 220 98 270" stroke="white" strokeWidth="2" fill="none" opacity="0.08" />
+      <path d="M205 180 Q200 220 202 270" stroke="white" strokeWidth="2" fill="none" opacity="0.08" />
     </g>
   );
 }
