@@ -42,9 +42,9 @@ export default function HeldAvatar({ config, size = 300, showBody = true }: Prop
 
   return (
     <svg
-      viewBox="60 10 180 310"
+      viewBox="60 -10 180 340"
       width={size}
-      height={size * (310 / 180)}
+      height={size * (340 / 180)}
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Cape behind */}
