@@ -1,7 +1,7 @@
 export type Welt = 'wald' | 'stadt' | 'unterwasser' | 'weltraum';
 export type SoundProfil = 'mutig' | 'leise' | 'schnell';
 export type Superkraft = 'sehen' | 'schreiben' | 'zaehlen' | 'erschaffen';
-export type Frisur = 'lang' | 'kurz' | 'zopf' | 'locken';
+export type Frisur = 'bob' | 'ponytail' | 'lang' | 'hochzopf';
 export type Outfit = 'spinne' | 'glueck' | 'krieger' | 'ozean';
 
 export interface AvatarConfig {
@@ -25,6 +25,7 @@ export interface Lernfortschritt {
   buchstaben: Record<string, BuchstabenFortschritt>;
   sessionsGesamt: number;
   durchschnittlicheSessionDauer: number;
+  sternenstaub: number;
 }
 
 export interface HeldenschuleProfil {
@@ -73,11 +74,11 @@ export const AUGENFARBEN = [
   { id: 'gold', hex: '#D4AC0D' },
 ] as const;
 
-export const FRISUREN: { id: Frisur; emoji: string }[] = [
-  { id: 'lang', emoji: '💇‍♀️' },
-  { id: 'kurz', emoji: '✂️' },
-  { id: 'zopf', emoji: '🎀' },
-  { id: 'locken', emoji: '🌀' },
+export const FRISUREN: { id: Frisur; emoji: string; label: string }[] = [
+  { id: 'bob', emoji: '💇‍♀️', label: 'Bob' },
+  { id: 'ponytail', emoji: '🎀', label: 'Ponytail' },
+  { id: 'lang', emoji: '✨', label: 'Lange Haare' },
+  { id: 'hochzopf', emoji: '🌟', label: 'Hochzopf' },
 ];
 
 export const OUTFITS: { id: Outfit; emoji: string; label: string }[] = [
