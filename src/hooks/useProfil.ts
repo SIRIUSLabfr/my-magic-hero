@@ -30,15 +30,19 @@ const createEmptyProfil = (): HeldenschuleProfil => ({
   erstellungsDatum: new Date().toISOString(),
 });
 
-// Migrate old outfit types to new ones
+// Migrate old types
 function migrateOutfit(outfit: string): AvatarConfig['outfit'] {
   const map: Record<string, AvatarConfig['outfit']> = {
-    anzug: 'spinne',
-    kleid: 'glueck',
-    cape: 'krieger',
-    ruestung: 'ozean',
+    anzug: 'spinne', kleid: 'glueck', cape: 'krieger', ruestung: 'ozean',
   };
   return map[outfit] || (outfit as AvatarConfig['outfit']) || 'spinne';
+}
+
+function migrateFrisur(frisur: string): AvatarConfig['frisur'] {
+  const map: Record<string, AvatarConfig['frisur']> = {
+    kurz: 'bob', zopf: 'ponytail', locken: 'hochzopf',
+  };
+  return map[frisur] || (frisur as AvatarConfig['frisur']) || 'lang';
 }
 
 export function useProfil() {
