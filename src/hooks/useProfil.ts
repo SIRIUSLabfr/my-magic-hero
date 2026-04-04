@@ -8,6 +8,7 @@ const createEmptyLernfortschritt = (): Lernfortschritt => ({
   buchstaben: {},
   sessionsGesamt: 0,
   durchschnittlicheSessionDauer: 0,
+  sternenstaub: 0,
 });
 
 const createEmptyProfil = (): HeldenschuleProfil => ({
@@ -29,15 +30,19 @@ const createEmptyProfil = (): HeldenschuleProfil => ({
   erstellungsDatum: new Date().toISOString(),
 });
 
-// Migrate old outfit types to new ones
+// Migrate old types
 function migrateOutfit(outfit: string): AvatarConfig['outfit'] {
   const map: Record<string, AvatarConfig['outfit']> = {
-    anzug: 'spinne',
-    kleid: 'glueck',
-    cape: 'krieger',
-    ruestung: 'ozean',
+    anzug: 'spinne', kleid: 'glueck', cape: 'krieger', ruestung: 'ozean',
   };
   return map[outfit] || (outfit as AvatarConfig['outfit']) || 'spinne';
+}
+
+function migrateFrisur(frisur: string): AvatarConfig['frisur'] {
+  const map: Record<string, AvatarConfig['frisur']> = {
+    kurz: 'bob', zopf: 'ponytail', locken: 'hochzopf',
+  };
+  return map[frisur] || (frisur as AvatarConfig['frisur']) || 'lang';
 }
 
 export function useProfil() {
@@ -57,12 +62,19 @@ export function useProfil() {
         parsed.avatar.config.umhangfarbe = FARBEN_MAP[parsed.avatar.hauptfarbe] || '#e63462';
       }
     }
-    // Migrate old outfit values
+    // Migrate old values
     if (parsed.avatar.config) {
       const o = parsed.avatar.config.outfit;
       if (o === 'anzug' || o === 'kleid' || o === 'cape' || o === 'ruestung') {
         parsed.avatar.config.outfit = migrateOutfit(o);
       }
+      const f = parsed.avatar.config.frisur;
+      if (f === 'kurz' || f === 'zopf' || f === 'locken') {
+        parsed.avatar.config.frisur = migrateFrisur(f);
+      }
+    }
+    if (parsed.lernfortschritt && parsed.lernfortschritt.sternenstaub === undefined) {
+      parsed.lernfortschritt.sternenstaub = 0;
     }
     return parsed;
   });

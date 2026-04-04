@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback } from 'react';
-import { BUCHSTABEN_DATEN } from '@/types/buchstaben';
+import { SESSIONS } from '@/types/buchstaben';
 import type { Lernfortschritt, AvatarConfig } from '@/types/profil';
 import BuchstabeScreen from './BuchstabeScreen';
 import SessionEndeScreen from './SessionEndeScreen';
+import WortRaetselScreen from './WortRaetselScreen';
 import HeldAvatar from '@/components/avatar/HeldAvatar';
 import MagicButton from '@/components/ui/MagicButton';
 
@@ -14,25 +15,19 @@ interface Props {
   onZurueck: () => void;
 }
 
-const SESSION_SIZE = 5;
+type Phase = 'buchstaben' | 'wort' | 'ende';
 
 export default function GeheimschriftTurm({ heldenfarbe, avatarConfig, lernfortschritt, onUpdate, onZurueck }: Props) {
   const [sessionIndex, setSessionIndex] = useState(0);
   const [currentInSession, setCurrentInSession] = useState(0);
-  const [sessionDone, setSessionDone] = useState(false);
+  const [phase, setPhase] = useState<Phase>('buchstaben');
   const sessionStart = useRef(Date.now());
   const lf = useRef<Lernfortschritt>({ ...lernfortschritt });
+  const [earnedStaub, setEarnedStaub] = useState(0);
 
-  const sessionBuchstaben = BUCHSTABEN_DATEN.slice(
-    (sessionIndex * SESSION_SIZE) % BUCHSTABEN_DATEN.length,
-    ((sessionIndex * SESSION_SIZE) % BUCHSTABEN_DATEN.length) + SESSION_SIZE
-  );
-
-  const effectiveBuchstaben = sessionBuchstaben.length < SESSION_SIZE
-    ? [...sessionBuchstaben, ...BUCHSTABEN_DATEN.slice(0, SESSION_SIZE - sessionBuchstaben.length)]
-    : sessionBuchstaben;
-
-  const currentData = effectiveBuchstaben[currentInSession];
+  const currentSession = SESSIONS[sessionIndex % SESSIONS.length];
+  const sessionBuchstaben = currentSession.buchstaben;
+  const currentData = sessionBuchstaben[currentInSession];
 
   const handleRichtig = useCallback((erstenVersuch: boolean, audioCount: number) => {
     const b = currentData.buchstabe;
@@ -52,40 +47,70 @@ export default function GeheimschriftTurm({ heldenfarbe, avatarConfig, lernforts
       },
     };
 
-    if (currentInSession + 1 >= SESSION_SIZE) {
-      const dauer = Math.round((Date.now() - sessionStart.current) / 1000);
-      const totalSessions = lf.current.sessionsGesamt + 1;
-      const avgDauer = Math.round(
-        ((lf.current.durchschnittlicheSessionDauer * lf.current.sessionsGesamt) + dauer) / totalSessions
-      );
-      lf.current = {
-        ...lf.current,
-        sessionsGesamt: totalSessions,
-        durchschnittlicheSessionDauer: avgDauer,
-      };
-      onUpdate(lf.current);
-      setSessionDone(true);
+    if (currentInSession + 1 >= sessionBuchstaben.length) {
+      // All letters done — go to word puzzle
+      setPhase('wort');
     } else {
       setCurrentInSession(c => c + 1);
     }
-  }, [currentData, currentInSession, onUpdate]);
+  }, [currentData, currentInSession, sessionBuchstaben.length]);
+
+  const handleWortGeloest = useCallback(() => {
+    const staub = 10;
+    setEarnedStaub(staub);
+    const dauer = Math.round((Date.now() - sessionStart.current) / 1000);
+    const totalSessions = lf.current.sessionsGesamt + 1;
+    const avgDauer = Math.round(
+      ((lf.current.durchschnittlicheSessionDauer * lf.current.sessionsGesamt) + dauer) / totalSessions
+    );
+    lf.current = {
+      ...lf.current,
+      sessionsGesamt: totalSessions,
+      durchschnittlicheSessionDauer: avgDauer,
+      sternenstaub: (lf.current.sternenstaub || 0) + staub,
+    };
+    onUpdate(lf.current);
+    setPhase('ende');
+  }, [onUpdate]);
 
   const handleWeiter = () => {
     setSessionIndex(s => s + 1);
     setCurrentInSession(0);
-    setSessionDone(false);
+    setPhase('buchstaben');
+    setEarnedStaub(0);
     sessionStart.current = Date.now();
   };
 
-  if (sessionDone) {
+  if (phase === 'ende') {
     return (
       <SessionEndeScreen
-        buchstaben={effectiveBuchstaben.map(b => b.buchstabe)}
+        buchstaben={sessionBuchstaben.map(b => b.buchstabe)}
+        loesungswort={currentSession.loesungswort}
+        sternenstaub={earnedStaub}
         heldenfarbe={heldenfarbe}
         avatarConfig={avatarConfig}
         onWeiter={handleWeiter}
         onZurueck={onZurueck}
       />
+    );
+  }
+
+  if (phase === 'wort') {
+    return (
+      <div className="relative min-h-screen">
+        <div className="absolute top-6 left-6 z-20 flex items-center gap-3">
+          <MagicButton onClick={onZurueck} variant="secondary" size="lg">
+            🏠
+          </MagicButton>
+          <HeldAvatar config={avatarConfig} size={60} />
+        </div>
+        <WortRaetselScreen
+          buchstaben={currentSession.loesungswort.split('')}
+          loesungswort={currentSession.loesungswort}
+          heldenfarbe={heldenfarbe}
+          onGeloest={handleWortGeloest}
+        />
+      </div>
     );
   }
 

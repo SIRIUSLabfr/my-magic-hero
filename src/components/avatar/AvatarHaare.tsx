@@ -1,10 +1,54 @@
 interface Props {
-  frisur: 'lang' | 'kurz' | 'zopf' | 'locken';
+  frisur: 'bob' | 'ponytail' | 'lang' | 'hochzopf';
   farbe: string;
 }
 
 export default function AvatarHaare({ frisur, farbe }: Props) {
   switch (frisur) {
+    case 'bob':
+      return (
+        <g className="haare">
+          {/* Bob hair cap - rounded, chin-length */}
+          <path
+            d="M96 78 Q96 26 150 26 Q204 26 204 78 Q204 50 150 42 Q96 50 96 78 Z"
+            fill={farbe}
+          />
+          {/* Left side - chin length, curved inward */}
+          <path d="M96 65 Q88 78 86 105 Q86 120 92 125 Q98 118 100 105 Q102 85 96 65 Z" fill={farbe} />
+          {/* Right side - chin length, curved inward */}
+          <path d="M204 65 Q212 78 214 105 Q214 120 208 125 Q202 118 200 105 Q198 85 204 65 Z" fill={farbe} />
+          {/* Bangs - side-swept */}
+          <path d="M105 48 Q115 32 135 36 Q128 46 122 54 Z" fill={farbe} />
+          <path d="M130 38 Q145 28 160 34 Q154 44 146 48 Z" fill={farbe} />
+          <path d="M155 36 Q170 30 185 40 Q178 48 170 50 Z" fill={farbe} />
+          {/* Volume on top */}
+          <ellipse cx="150" cy="32" rx="40" ry="10" fill={farbe} opacity="0.6" />
+        </g>
+      );
+
+    case 'ponytail':
+      return (
+        <g className="haare">
+          {/* Hair cap - pulled back */}
+          <path
+            d="M98 80 Q98 28 150 28 Q202 28 202 80 Q202 55 150 45 Q98 55 98 80 Z"
+            fill={farbe}
+          />
+          {/* Sides pulled back tight */}
+          <path d="M98 65 Q92 75 94 95 Q98 88 100 78 Z" fill={farbe} />
+          <path d="M202 65 Q208 75 206 95 Q202 88 200 78 Z" fill={farbe} />
+          {/* Ponytail flowing from back of head */}
+          <path d="M185 50 Q210 55 215 80 Q218 110 215 150 Q212 180 205 200 Q200 205 195 198 Q200 170 202 140 Q204 110 200 80 Q196 60 185 50 Z" fill={farbe} />
+          {/* Ponytail volume */}
+          <path d="M195 80 Q208 100 210 130 Q212 160 208 185 Q204 175 205 145 Q206 115 198 90 Z" fill={farbe} opacity="0.7" />
+          {/* Hair tie */}
+          <circle cx="192" cy="58" r="5" fill="#facc15" />
+          {/* Small bangs */}
+          <path d="M112 48 Q125 36 140 42 Q134 50 128 54 Z" fill={farbe} />
+          <path d="M145 42 Q158 34 170 42 Q164 48 156 50 Z" fill={farbe} />
+        </g>
+      );
+
     case 'lang':
       return (
         <g className="haare">
@@ -13,94 +57,44 @@ export default function AvatarHaare({ frisur, farbe }: Props) {
             d="M98 80 Q98 28 150 28 Q202 28 202 80 Q202 55 150 48 Q98 55 98 80 Z"
             fill={farbe}
           />
-          {/* Side hair */}
-          <path d="M98 68 Q90 80 88 130 Q86 160 92 180 Q96 165 100 130 Q102 100 98 68 Z" fill={farbe} />
-          <path d="M202 68 Q210 80 212 130 Q214 160 208 180 Q204 165 200 130 Q198 100 202 68 Z" fill={farbe} />
-          {/* Long flowing hair back */}
-          <path d="M92 110 Q85 160 88 220 Q92 240 100 240 Q98 200 96 160 Q95 130 92 110 Z" fill={farbe} opacity="0.8" />
-          <path d="M208 110 Q215 160 212 220 Q208 240 200 240 Q202 200 204 160 Q205 130 208 110 Z" fill={farbe} opacity="0.8" />
-          {/* Bangs */}
-          <path d="M110 52 Q120 38 135 42 Q130 52 125 58 Z" fill={farbe} />
-          <path d="M140 45 Q150 34 165 38 Q160 48 150 52 Z" fill={farbe} />
-          <path d="M165 42 Q178 36 188 48 Q180 52 172 54 Z" fill={farbe} />
+          {/* Left side - long straight flowing */}
+          <path d="M98 65 Q88 80 86 120 Q84 170 86 220 Q88 250 94 260 Q96 240 96 200 Q96 150 98 110 Q100 85 98 65 Z" fill={farbe} />
+          {/* Right side - long straight flowing */}
+          <path d="M202 65 Q212 80 214 120 Q216 170 214 220 Q212 250 206 260 Q204 240 204 200 Q204 150 202 110 Q200 85 202 65 Z" fill={farbe} />
+          {/* Back hair layer */}
+          <path d="M92 100 Q86 150 88 210 Q90 245 96 255 Q94 215 94 170 Q93 130 92 100 Z" fill={farbe} opacity="0.7" />
+          <path d="M208 100 Q214 150 212 210 Q210 245 204 255 Q206 215 206 170 Q207 130 208 100 Z" fill={farbe} opacity="0.7" />
+          {/* Straight bangs */}
+          <path d="M108 50 Q118 36 132 40 Q126 50 120 56 Z" fill={farbe} />
+          <path d="M135 42 Q148 32 162 38 Q156 48 148 52 Z" fill={farbe} />
+          <path d="M160 40 Q175 34 188 44 Q180 50 174 52 Z" fill={farbe} />
         </g>
       );
 
-    case 'kurz':
+    case 'hochzopf':
       return (
         <g className="haare">
-          {/* Short hair cap */}
+          {/* Hair cap - pulled up */}
           <path
-            d="M96 85 Q96 26 150 26 Q204 26 204 85 Q204 55 150 45 Q96 55 96 85 Z"
+            d="M98 80 Q98 30 150 30 Q202 30 202 80 Q202 55 150 48 Q98 55 98 80 Z"
             fill={farbe}
           />
-          {/* Side tufts */}
-          <path d="M96 68 Q90 78 92 100 Q96 95 98 80 Z" fill={farbe} />
-          <path d="M204 68 Q210 78 208 100 Q204 95 202 80 Z" fill={farbe} />
-          {/* Textured bangs */}
-          <path d="M108 50 Q115 36 130 40 Q125 50 120 56 Z" fill={farbe} />
-          <path d="M135 42 Q148 30 162 38 Q155 48 148 50 Z" fill={farbe} />
-          <path d="M162 40 Q175 32 190 44 Q182 50 175 52 Z" fill={farbe} />
-        </g>
-      );
-
-    case 'zopf':
-      return (
-        <g className="haare">
-          {/* Hair cap */}
-          <path
-            d="M98 80 Q98 28 150 28 Q202 28 202 80 Q202 55 150 48 Q98 55 98 80 Z"
-            fill={farbe}
-          />
-          {/* Left braid */}
-          <path d="M100 75 Q92 90 94 120" stroke={farbe} strokeWidth="14" fill="none" strokeLinecap="round" />
-          <circle cx="94" cy="100" r="5" fill={farbe} />
-          <circle cx="92" cy="115" r="5" fill={farbe} />
-          <circle cx="94" cy="130" r="5" fill={farbe} />
-          <circle cx="92" cy="145" r="5" fill={farbe} />
-          <circle cx="94" cy="160" r="5" fill={farbe} />
-          {/* Right braid */}
-          <path d="M200 75 Q208 90 206 120" stroke={farbe} strokeWidth="14" fill="none" strokeLinecap="round" />
-          <circle cx="206" cy="100" r="5" fill={farbe} />
-          <circle cx="208" cy="115" r="5" fill={farbe} />
-          <circle cx="206" cy="130" r="5" fill={farbe} />
-          <circle cx="208" cy="145" r="5" fill={farbe} />
-          <circle cx="206" cy="160" r="5" fill={farbe} />
-          {/* Braid ties */}
-          <circle cx="94" cy="170" r="6" fill="#facc15" />
-          <circle cx="206" cy="170" r="6" fill="#facc15" />
-          {/* Bangs */}
-          <path d="M115 48 Q130 36 145 42 Q138 50 130 55 Z" fill={farbe} />
-          <path d="M150 40 Q165 32 180 42 Q172 50 162 52 Z" fill={farbe} />
-        </g>
-      );
-
-    case 'locken':
-      return (
-        <g className="haare">
-          {/* Curly hair volume */}
-          <path
-            d="M90 85 Q86 20 150 20 Q214 20 210 85 Q215 60 150 42 Q85 60 90 85 Z"
-            fill={farbe}
-          />
-          {/* Curls around head */}
-          <circle cx="92" cy="60" r="12" fill={farbe} />
-          <circle cx="88" cy="80" r="11" fill={farbe} />
-          <circle cx="90" cy="100" r="10" fill={farbe} />
-          <circle cx="92" cy="118" r="9" fill={farbe} />
-          <circle cx="208" cy="60" r="12" fill={farbe} />
-          <circle cx="212" cy="80" r="11" fill={farbe} />
-          <circle cx="210" cy="100" r="10" fill={farbe} />
-          <circle cx="208" cy="118" r="9" fill={farbe} />
-          {/* Top curls */}
-          <circle cx="115" cy="30" r="10" fill={farbe} />
-          <circle cx="140" cy="24" r="11" fill={farbe} />
-          <circle cx="165" cy="24" r="11" fill={farbe} />
-          <circle cx="188" cy="30" r="10" fill={farbe} />
-          {/* Bangs curls */}
-          <circle cx="120" cy="48" r="9" fill={farbe} />
-          <circle cx="145" cy="44" r="10" fill={farbe} />
-          <circle cx="170" cy="46" r="9" fill={farbe} />
+          {/* Sides pulled up tight */}
+          <path d="M98 68 Q92 78 94 95 Q98 85 100 75 Z" fill={farbe} />
+          <path d="M202 68 Q208 78 206 95 Q202 85 200 75 Z" fill={farbe} />
+          {/* High bun/zopf on top */}
+          <ellipse cx="150" cy="18" rx="22" ry="18" fill={farbe} />
+          {/* Braid wrapping around bun */}
+          <path d="M130 22 Q135 5 150 2 Q165 5 170 22" stroke={farbe} strokeWidth="10" fill="none" strokeLinecap="round" />
+          <path d="M135 28 Q140 12 150 8 Q160 12 165 28" stroke={farbe} strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.7" />
+          {/* Hair tie at base */}
+          <circle cx="150" cy="32" r="5" fill="#facc15" />
+          {/* Wisps */}
+          <path d="M105 55 Q100 62 102 72 Q106 65 105 55 Z" fill={farbe} opacity="0.6" />
+          <path d="M195 55 Q200 62 198 72 Q194 65 195 55 Z" fill={farbe} opacity="0.6" />
+          {/* Small bangs */}
+          <path d="M118 46 Q130 36 142 42 Q136 48 128 52 Z" fill={farbe} />
+          <path d="M148 40 Q162 34 174 42 Q166 48 158 50 Z" fill={farbe} />
         </g>
       );
   }

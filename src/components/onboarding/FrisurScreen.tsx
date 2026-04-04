@@ -34,9 +34,10 @@ export default function FrisurScreen({ avatarConfig, onSelect, onZurueck }: Prop
             key={f.id}
             selected={selected === f.id}
             onClick={() => setSelected(f.id)}
-            className="flex flex-col items-center gap-2 w-[140px] h-[140px] justify-center"
+            className="flex flex-col items-center gap-2 w-[140px] h-[160px] justify-center"
           >
             <HeldAvatar config={{ ...avatarConfig, frisur: f.id }} showBody={false} size={80} />
+            <span className="text-xs font-display text-card-foreground">{f.label}</span>
           </OptionCard>
         ))}
       </div>

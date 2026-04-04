@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function HeldenPlatz({ profil, onNavigate }: Props) {
-  const welt = WELTEN.find(w => w.id === profil.avatar.welt);
+  const sternenstaub = profil.lernfortschritt.sternenstaub || 0;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 animate-screen-enter">
@@ -18,6 +18,15 @@ export default function HeldenPlatz({ profil, onNavigate }: Props) {
       <h1 className="text-hero text-center font-display text-foreground">
         {profil.avatar.name || 'Deine Heldin'}
       </h1>
+
+      {sternenstaub > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: `${profil.avatar.config.umhangfarbe}20` }}>
+          <span className="text-xl">⭐</span>
+          <span className="text-body-lg font-display" style={{ color: profil.avatar.config.umhangfarbe }}>
+            {sternenstaub} Sternenstaub
+          </span>
+        </div>
+      )}
 
       <div className="flex flex-col gap-5 w-full max-w-md">
         <OptionCard
