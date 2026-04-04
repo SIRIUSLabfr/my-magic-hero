@@ -62,12 +62,19 @@ export function useProfil() {
         parsed.avatar.config.umhangfarbe = FARBEN_MAP[parsed.avatar.hauptfarbe] || '#e63462';
       }
     }
-    // Migrate old outfit values
+    // Migrate old values
     if (parsed.avatar.config) {
       const o = parsed.avatar.config.outfit;
       if (o === 'anzug' || o === 'kleid' || o === 'cape' || o === 'ruestung') {
         parsed.avatar.config.outfit = migrateOutfit(o);
       }
+      const f = parsed.avatar.config.frisur;
+      if (f === 'kurz' || f === 'zopf' || f === 'locken') {
+        parsed.avatar.config.frisur = migrateFrisur(f);
+      }
+    }
+    if (parsed.lernfortschritt && parsed.lernfortschritt.sternenstaub === undefined) {
+      parsed.lernfortschritt.sternenstaub = 0;
     }
     return parsed;
   });
