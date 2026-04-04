@@ -34,10 +34,13 @@ export default function OutfitScreen({ avatarConfig, onSelect, onZurueck }: Prop
             key={o.id}
             selected={selected === o.id}
             onClick={() => setSelected(o.id)}
-            className="flex flex-col items-center gap-2 w-[160px] h-[180px] justify-center"
+            className="flex flex-col items-center gap-2 w-[160px] h-[200px] justify-center"
           >
-            <span className="text-5xl">{o.emoji}</span>
-            <span className="text-sm font-display text-card-foreground">{o.label}</span>
+            <HeldAvatar config={{ ...avatarConfig, outfit: o.id, umhangfarbe: avatarConfig.umhangfarbe || '#999' }} size={120} />
+            <div className="flex items-center gap-1">
+              <span className="text-lg">{o.emoji}</span>
+              <span className="text-xs font-display text-card-foreground">{o.label}</span>
+            </div>
           </OptionCard>
         ))}
       </div>
