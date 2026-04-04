@@ -19,7 +19,7 @@ export default function HeldAvatar({ config, size = 300, showBody = true }: Prop
   const haar = config.haarfarbe || PLACEHOLDER;
   const augen = config.augenfarbe || '#3498DB';
   const umhang = config.umhangfarbe || PLACEHOLDER;
-  const outfit = config.outfit || 'anzug';
+  const outfit = config.outfit || 'spinne';
   const frisur = config.frisur || 'lang';
 
   if (!showBody) {
