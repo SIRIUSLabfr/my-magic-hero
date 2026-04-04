@@ -25,11 +25,11 @@ export default function HeldAvatar({ config, size = 300, showBody = true }: Prop
   if (!showBody) {
     // Head-only preview
     return (
-      <svg viewBox="20 10 260 140" width={size} height={size * 0.54} xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="20 0 260 140" width={size} height={size * 0.54} xmlns="http://www.w3.org/2000/svg">
         {/* Head */}
-        <circle cx="150" cy="80" r="52" fill={h} />
-        <ellipse cx="97" cy="82" rx="8" ry="12" fill={h} />
-        <ellipse cx="203" cy="82" rx="8" ry="12" fill={h} />
+        <circle cx="150" cy="75" r="55" fill={h} />
+        <ellipse cx="94" cy="78" rx="7" ry="10" fill={h} />
+        <ellipse cx="206" cy="78" rx="7" ry="10" fill={h} />
         {/* Hair */}
         <AvatarHaare frisur={frisur} farbe={haar} />
         {/* Face */}
@@ -42,9 +42,9 @@ export default function HeldAvatar({ config, size = 300, showBody = true }: Prop
 
   return (
     <svg
-      viewBox="60 10 180 310"
+      viewBox="60 -10 180 340"
       width={size}
-      height={size * (310 / 180)}
+      height={size * (340 / 180)}
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Cape behind */}
