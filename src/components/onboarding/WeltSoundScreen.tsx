@@ -4,16 +4,28 @@ import MagicButton from '@/components/ui/MagicButton';
 import OptionCard from '@/components/ui/OptionCard';
 import { useSound } from '@/hooks/useSound';
 import type { AvatarConfig, Welt, SoundProfil } from '@/types/profil';
-import { WELTEN, SOUNDS } from '@/types/profil';
+import { WELTEN, SOUNDS, GEHOERSCHUTZ_FARBEN } from '@/types/profil';
 
 interface Props {
   avatarConfig: AvatarConfig;
-  onSelect: (data: { maskeAktiv: boolean; welt: Welt; explored: string[]; sound: SoundProfil; playCount: number }) => void;
+  onSelect: (data: {
+    maskeAktiv: boolean;
+    gehoerschutzAktiv: boolean;
+    gehoerschutzFarbe: string;
+    brilleAktiv: boolean;
+    welt: Welt;
+    explored: string[];
+    sound: SoundProfil;
+    playCount: number;
+  }) => void;
   onZurueck: () => void;
 }
 
 export default function WeltSoundScreen({ avatarConfig, onSelect, onZurueck }: Props) {
   const [maske, setMaske] = useState(avatarConfig.maskeAktiv);
+  const [gehoerschutz, setGehoerschutz] = useState(avatarConfig.gehoerschutzAktiv);
+  const [gehoerschutzFarbe, setGehoerschutzFarbe] = useState(avatarConfig.gehoerschutzFarbe || '#3b82f6');
+  const [brille, setBrille] = useState(avatarConfig.brilleAktiv);
   const [welt, setWelt] = useState<Welt | ''>('');
   const [sound, setSound] = useState<SoundProfil | ''>('');
   const explored = useRef<string[]>([]);
@@ -46,17 +58,61 @@ export default function WeltSoundScreen({ avatarConfig, onSelect, onZurueck }: P
       </button>
 
       <div className="transition-transform duration-300 mt-4">
-        <HeldAvatar config={{ ...avatarConfig, maskeAktiv: maske }} size={200} />
+        <HeldAvatar
+          config={{
+            ...avatarConfig,
+            maskeAktiv: maske,
+            gehoerschutzAktiv: gehoerschutz,
+            gehoerschutzFarbe,
+            brilleAktiv: brille,
+          }}
+          size={200}
+        />
       </div>
 
-      {/* Mask toggle */}
-      <button
-        onClick={() => setMaske(!maske)}
-        className={`touch-target rounded-2xl px-8 py-4 font-display text-body-lg transition-all duration-300 ${maske ? 'bg-accent text-accent-foreground ring-4 ring-accent' : 'bg-card text-card-foreground ring-2 ring-border'}`}
-        style={{ touchAction: 'manipulation' }}
-      >
-        {maske ? 'Maske an ✨' : 'Maske aus'}
-      </button>
+      {/* Accessoires - mask, glasses, hearing protection */}
+      <div className="flex flex-wrap gap-2 justify-center max-w-md">
+        <button
+          onClick={() => setMaske(!maske)}
+          className={`touch-target rounded-2xl px-5 py-3 font-display text-body-lg transition-all duration-300 ${maske ? 'bg-accent text-accent-foreground ring-4 ring-accent' : 'bg-card text-card-foreground ring-2 ring-border'}`}
+          style={{ touchAction: 'manipulation', minHeight: '60px' }}
+        >
+          {maske ? '🎭 Maske an' : '🎭 Maske aus'}
+        </button>
+        <button
+          onClick={() => setBrille(!brille)}
+          className={`touch-target rounded-2xl px-5 py-3 font-display text-body-lg transition-all duration-300 ${brille ? 'bg-accent text-accent-foreground ring-4 ring-accent' : 'bg-card text-card-foreground ring-2 ring-border'}`}
+          style={{ touchAction: 'manipulation', minHeight: '60px' }}
+        >
+          {brille ? '👓 Brille an' : '👓 Brille aus'}
+        </button>
+        <button
+          onClick={() => setGehoerschutz(!gehoerschutz)}
+          className={`touch-target rounded-2xl px-5 py-3 font-display text-body-lg transition-all duration-300 ${gehoerschutz ? 'bg-accent text-accent-foreground ring-4 ring-accent' : 'bg-card text-card-foreground ring-2 ring-border'}`}
+          style={{ touchAction: 'manipulation', minHeight: '60px' }}
+        >
+          {gehoerschutz ? '🎧 Gehörschutz an' : '🎧 Gehörschutz aus'}
+        </button>
+      </div>
+
+      {/* Hearing protection color picker - only shown when active */}
+      {gehoerschutz && (
+        <div className="flex gap-2 flex-wrap justify-center animate-screen-enter">
+          {GEHOERSCHUTZ_FARBEN.map(f => (
+            <button
+              key={f.id}
+              onClick={() => setGehoerschutzFarbe(f.hex)}
+              className={`w-12 h-12 rounded-full transition-all duration-200 ${gehoerschutzFarbe === f.hex ? 'ring-4 ring-accent scale-110' : 'ring-2 ring-border'}`}
+              style={{
+                backgroundColor: f.hex,
+                touchAction: 'manipulation',
+                boxShadow: gehoerschutzFarbe === f.hex ? `0 0 12px ${f.hex}80` : undefined,
+              }}
+              aria-label={f.label}
+            />
+          ))}
+        </div>
+      )}
 
       {/* World selection */}
       <p className="text-body-lg font-display text-foreground">Dein geheimer Ort?</p>
@@ -94,6 +150,9 @@ export default function WeltSoundScreen({ avatarConfig, onSelect, onZurueck }: P
         <MagicButton
           onClick={() => onSelect({
             maskeAktiv: maske,
+            gehoerschutzAktiv: gehoerschutz,
+            gehoerschutzFarbe,
+            brilleAktiv: brille,
             welt: welt as Welt,
             explored: explored.current,
             sound: sound as SoundProfil,

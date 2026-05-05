@@ -1,18 +1,17 @@
 import HeldAvatar from '@/components/avatar/HeldAvatar';
 import type { HeldenschuleProfil } from '@/types/profil';
-import { WELTEN } from '@/types/profil';
 import OptionCard from '@/components/ui/OptionCard';
 
 interface Props {
   profil: HeldenschuleProfil;
-  onNavigate: (target: 'geheimschrift' | 'kreativ' | 'neustart') => void;
+  onNavigate: (target: 'geheimschrift' | 'kreativ' | 'abenteuer' | 'neustart') => void;
 }
 
 export default function HeldenPlatz({ profil, onNavigate }: Props) {
   const sternenstaub = profil.lernfortschritt.sternenstaub || 0;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 animate-screen-enter">
+    <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-8 py-8 animate-screen-enter">
       <HeldAvatar config={profil.avatar.config} size={200} />
 
       <h1 className="text-hero text-center font-display text-foreground">
@@ -29,6 +28,19 @@ export default function HeldenPlatz({ profil, onNavigate }: Props) {
       )}
 
       <div className="flex flex-col gap-5 w-full max-w-md">
+        <OptionCard
+          selected={false}
+          onClick={() => onNavigate('abenteuer')}
+          glowColor={profil.avatar.config.umhangfarbe}
+          className="flex items-center gap-5 px-6 py-5"
+        >
+          <span className="text-5xl">🌊</span>
+          <div className="flex flex-col items-start">
+            <span className="text-body-lg font-display text-card-foreground">Meeres-Abenteuer</span>
+            <span className="text-sm text-muted-foreground font-body">Strande in der Höhle und baue ein Floss</span>
+          </div>
+        </OptionCard>
+
         <OptionCard
           selected={false}
           onClick={() => onNavigate('geheimschrift')}

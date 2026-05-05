@@ -76,6 +76,13 @@ export function useProfil() {
     if (parsed.lernfortschritt && parsed.lernfortschritt.sternenstaub === undefined) {
       parsed.lernfortschritt.sternenstaub = 0;
     }
+    // Migrate avatar config: add accessibility fields when missing
+    if (parsed.avatar?.config) {
+      const c = parsed.avatar.config;
+      if (c.gehoerschutzAktiv === undefined) c.gehoerschutzAktiv = false;
+      if (!c.gehoerschutzFarbe) c.gehoerschutzFarbe = '#3b82f6';
+      if (c.brilleAktiv === undefined) c.brilleAktiv = false;
+    }
     return parsed;
   });
 

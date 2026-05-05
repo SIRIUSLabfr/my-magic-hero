@@ -1,7 +1,7 @@
 export type Welt = 'wald' | 'stadt' | 'unterwasser' | 'weltraum';
 export type SoundProfil = 'mutig' | 'leise' | 'schnell';
 export type Superkraft = 'sehen' | 'schreiben' | 'zaehlen' | 'erschaffen';
-export type Frisur = 'bob' | 'ponytail' | 'lang' | 'hochzopf';
+export type Frisur = 'bob' | 'ponytail' | 'lang' | 'hochzopf' | 'locken' | 'kurz' | 'afro' | 'kopftuch';
 export type Outfit = 'spinne' | 'glueck' | 'krieger' | 'ozean';
 
 export interface AvatarConfig {
@@ -12,6 +12,9 @@ export interface AvatarConfig {
   outfit: Outfit;
   umhangfarbe: string;
   maskeAktiv: boolean;
+  gehoerschutzAktiv: boolean;
+  gehoerschutzFarbe: string;
+  brilleAktiv: boolean;
 }
 
 export interface BuchstabenFortschritt {
@@ -48,12 +51,15 @@ export interface HeldenschuleProfil {
 }
 
 export const HAUTFARBEN = [
+  { id: 'sehr-hell', hex: '#FFE0C2' },
   { id: 'hell', hex: '#FDDCB5' },
   { id: 'mittelhell', hex: '#E8B88A' },
-  { id: 'mittel', hex: '#C68E5B' },
-  { id: 'oliv', hex: '#A67449' },
-  { id: 'dunkel', hex: '#7B4B2A' },
-  { id: 'dunkelbraun', hex: '#4A2C17' },
+  { id: 'mittel', hex: '#D9A06D' },
+  { id: 'oliv', hex: '#C68E5B' },
+  { id: 'mittelbraun', hex: '#A67449' },
+  { id: 'braun', hex: '#7B4B2A' },
+  { id: 'dunkelbraun', hex: '#5C3416' },
+  { id: 'sehr-dunkel', hex: '#3A2210' },
 ] as const;
 
 export const HAARFARBEN = [
@@ -79,6 +85,10 @@ export const FRISUREN: { id: Frisur; emoji: string; label: string }[] = [
   { id: 'ponytail', emoji: '🎀', label: 'Ponytail' },
   { id: 'lang', emoji: '✨', label: 'Lange Haare' },
   { id: 'hochzopf', emoji: '🌟', label: 'Hochzopf' },
+  { id: 'locken', emoji: '🌀', label: 'Locken' },
+  { id: 'kurz', emoji: '✂️', label: 'Kurz' },
+  { id: 'afro', emoji: '🌟', label: 'Afro' },
+  { id: 'kopftuch', emoji: '🧕', label: 'Kopftuch' },
 ];
 
 export const OUTFITS: { id: Outfit; emoji: string; label: string }[] = [
@@ -125,4 +135,16 @@ export const createEmptyAvatarConfig = (): AvatarConfig => ({
   outfit: 'spinne',
   umhangfarbe: '',
   maskeAktiv: false,
+  gehoerschutzAktiv: false,
+  gehoerschutzFarbe: '#3b82f6',
+  brilleAktiv: false,
 });
+
+export const GEHOERSCHUTZ_FARBEN = [
+  { id: 'blau', hex: '#3b82f6', label: 'Blau' },
+  { id: 'pink', hex: '#ec4899', label: 'Pink' },
+  { id: 'lila', hex: '#9333ea', label: 'Lila' },
+  { id: 'gruen', hex: '#22c55e', label: 'Grün' },
+  { id: 'gelb', hex: '#facc15', label: 'Gelb' },
+  { id: 'schwarz', hex: '#1f2937', label: 'Schwarz' },
+] as const;

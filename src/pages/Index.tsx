@@ -11,17 +11,18 @@ import HeldinErwachtScreen from '@/components/onboarding/HeldinErwachtScreen';
 import HeldenPlatz from '@/components/home/HeldenPlatz';
 import GeheimschriftTurm from '@/components/lesen/GeheimschriftTurm';
 import KreativHoehle from '@/components/kreativ/KreativHoehle';
+import MeeresAbenteuer from '@/components/abenteuer/MeeresAbenteuer';
 import { useProfil } from '@/hooks/useProfil';
-import type { Welt, SoundProfil, Frisur, Outfit } from '@/types/profil';
+import type { Frisur, Outfit } from '@/types/profil';
 
 type Screen =
   | 'welcome' | 'hautfarbe' | 'haarfarbe' | 'frisur' | 'outfit' | 'umhangfarbe' | 'weltsound' | 'heldin'
-  | 'home' | 'geheimschrift' | 'kreativ';
+  | 'home' | 'geheimschrift' | 'kreativ' | 'abenteuer';
 
 export default function Index() {
   const {
     profil, existingProfil, updateAvatarConfig,
-    setWelt, setSoundProfil, setSuperkraefte, setName,
+    setWelt, setSoundProfil, setName,
     trackScreenTime, updateLernfortschritt, save, reset,
   } = useProfil();
 
@@ -48,6 +49,19 @@ export default function Index() {
 
   if (screen === 'kreativ') {
     return <KreativHoehle onZurueck={() => setScreen('home')} />;
+  }
+
+  if (screen === 'abenteuer') {
+    return (
+      <MeeresAbenteuer
+        avatarConfig={profil.avatar.config}
+        heldenfarbe={heldenfarbe}
+        heldName={profil.avatar.name}
+        lernfortschritt={profil.lernfortschritt}
+        onUpdate={updateLernfortschritt}
+        onZurueck={() => setScreen('home')}
+      />
+    );
   }
 
   if (screen === 'geheimschrift') {
@@ -117,8 +131,8 @@ export default function Index() {
         {screen === 'weltsound' && (
           <WeltSoundScreen
             avatarConfig={profil.avatar.config}
-            onSelect={({ maskeAktiv, welt, explored, sound, playCount }) => {
-              updateAvatarConfig({ maskeAktiv });
+            onSelect={({ maskeAktiv, gehoerschutzAktiv, gehoerschutzFarbe, brilleAktiv, welt, explored, sound, playCount }) => {
+              updateAvatarConfig({ maskeAktiv, gehoerschutzAktiv, gehoerschutzFarbe, brilleAktiv });
               setWelt(welt, explored);
               setSoundProfil(sound, playCount);
               goTo('heldin');
