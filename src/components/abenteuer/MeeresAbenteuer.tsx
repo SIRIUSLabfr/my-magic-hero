@@ -23,6 +23,7 @@ import AngelMinigame from './AngelMinigame';
 import WortLernPuzzle from './WortLernPuzzle';
 import FlossWerkbank from './FlossWerkbank';
 import SchleuderWerkbank from './SchleuderWerkbank';
+import IrrlichterMinigame from './IrrlichterMinigame';
 import EndCutscene from './EndCutscene';
 import PiratenLevel from './PiratenLevel';
 
@@ -37,8 +38,10 @@ interface Props {
 
 const STAUB_PRO_ITEM = 4;
 const STAUB_PRO_FISCH = 4;
+const STAUB_PRO_IRRLICHT = 1;
 const STAUB_FUER_FLOSS = 10;
-const STAUB_FUER_SCHLEUDER = 8;
+const STAUB_FUER_SCHLEUDER_BAUEN = 4;
+const STAUB_FUER_SCHLEUDER_TEST = 8;
 const STAUB_FUER_SIEG = 20;
 
 export default function MeeresAbenteuer({
@@ -119,7 +122,9 @@ export default function MeeresAbenteuer({
   const handleFlossFertig = useCallback(() => {
     const flossDone = FLOSS_TEILE.every(i => state.gefunden.includes(i.id));
     const proviantDone = PROVIANT_ITEMS.every(i => state.gefunden.includes(i.id));
-    const schleuderDone = SCHLEUDER_TEILE.every(i => state.gefunden.includes(i.id));
+    const schleuderDone = SCHLEUDER_TEILE.every(i => state.gefunden.includes(i.id))
+      && state.schleuderPlatziert.length === SCHLEUDER_TEILE.length
+      && state.schleuderGetestet;
     const fischDone = state.fischeGefangen >= FISCH_ZIEL;
     const allesGesammelt = flossDone && proviantDone && schleuderDone && fischDone;
 
@@ -135,7 +140,15 @@ export default function MeeresAbenteuer({
       sessionsGesamt: lernfortschritt.sessionsGesamt + 1,
       sternenstaub: (lernfortschritt.sternenstaub || 0) + STAUB_FUER_FLOSS,
     });
-  }, [state.gefunden, state.fischeGefangen, lernfortschritt, onUpdate, grantStaub]);
+  }, [
+    state.gefunden,
+    state.fischeGefangen,
+    state.schleuderPlatziert,
+    state.schleuderGetestet,
+    lernfortschritt,
+    onUpdate,
+    grantStaub,
+  ]);
 
   // ===== Schleuder-Werkbank =====
   const handleZurSchleuderWerkbank = useCallback(() => {
@@ -150,8 +163,20 @@ export default function MeeresAbenteuer({
   }, []);
 
   const handleSchleuderFertig = useCallback(() => {
-    setState(s => ({ ...s, phase: 'hub' }));
-    grantStaub(STAUB_FUER_SCHLEUDER);
+    // After building, jump straight into the wisp test
+    setState(s => ({ ...s, phase: 'irrlichter' }));
+    grantStaub(STAUB_FUER_SCHLEUDER_BAUEN);
+  }, [grantStaub]);
+
+  // ===== Irrlichter test =====
+  const handleIrrlichtTreffer = useCallback(() => {
+    setState(s => ({ ...s, irrlichterTreffer: s.irrlichterTreffer + 1 }));
+    grantStaub(STAUB_PRO_IRRLICHT);
+  }, [grantStaub]);
+
+  const handleIrrlichterSieg = useCallback(() => {
+    setState(s => ({ ...s, schleuderGetestet: true, phase: 'hub' }));
+    grantStaub(STAUB_FUER_SCHLEUDER_TEST);
   }, [grantStaub]);
 
   // ===== Cutscenes / Level transitions =====
@@ -264,6 +289,16 @@ export default function MeeresAbenteuer({
         />
       );
 
+    case 'irrlichter':
+      return (
+        <IrrlichterMinigame
+          heldenfarbe={heldenfarbe}
+          onTreffer={handleIrrlichtTreffer}
+          onSieg={handleIrrlichterSieg}
+          onZurueck={handleZurueckZumHub}
+        />
+      );
+
     case 'cutsceneAusFahrt':
       return (
         <EndCutscene
@@ -308,6 +343,7 @@ export default function MeeresAbenteuer({
           heldenfarbe={heldenfarbe}
           gefunden={state.gefunden}
           fischeGefangen={state.fischeGefangen}
+          schleuderGetestet={state.schleuderGetestet}
           onZurueck={onZurueck}
           onTaskWaehlen={handleTaskWaehlen}
           onZurFlossWerkbank={handleZurFlossWerkbank}

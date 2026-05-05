@@ -232,6 +232,7 @@ export const ALLE_SAMMEL_ITEMS: SammelItem[] = [
 ];
 
 export const FISCH_ZIEL = 3; // catch 3 fish to complete
+export const IRRLICHTER_ZIEL = 10; // hit 10 wisps to pass slingshot test
 
 export const KATEGORIE_INFO: Record<ItemKategorie, { label: string; emoji: string }> = {
   floss: { label: 'Floss bauen', emoji: '🛟' },
@@ -250,6 +251,7 @@ export type AbenteuerPhase =
   | 'wortpuzzle'
   | 'flossWerkbank'
   | 'schleuderWerkbank'
+  | 'irrlichter'
   | 'cutsceneAusFahrt'
   | 'piraten'
   | 'cutsceneSieg'
@@ -266,6 +268,10 @@ export interface AbenteuerState {
   schleuderPlatziert: string[];
   /** Number of fish caught */
   fischeGefangen: number;
+  /** Number of wisps hit during slingshot test */
+  irrlichterTreffer: number;
+  /** True once the slingshot has been test-fired (10 wisps hit) */
+  schleuderGetestet: boolean;
   phase: AbenteuerPhase;
 }
 
@@ -275,6 +281,8 @@ export const createEmptyAbenteuerState = (): AbenteuerState => ({
   flossPlatziert: [],
   schleuderPlatziert: [],
   fischeGefangen: 0,
+  irrlichterTreffer: 0,
+  schleuderGetestet: false,
   phase: 'intro',
 });
 

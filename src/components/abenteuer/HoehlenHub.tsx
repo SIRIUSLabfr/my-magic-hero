@@ -16,6 +16,7 @@ interface Props {
   heldenfarbe: string;
   gefunden: string[];
   fischeGefangen: number;
+  schleuderGetestet: boolean;
   onZurueck: () => void;
   onTaskWaehlen: (kat: ItemKategorie) => void;
   onZurFlossWerkbank: () => void;
@@ -61,26 +62,34 @@ export default function HoehlenHub({
   heldenfarbe,
   gefunden,
   fischeGefangen,
+  schleuderGetestet,
   onZurueck,
   onTaskWaehlen,
   onZurFlossWerkbank,
   onZurSchleuderWerkbank,
 }: Props) {
-  const flossDone = FLOSS_TEILE.every(i => gefunden.includes(i.id));
+  const flossCollected = FLOSS_TEILE.every(i => gefunden.includes(i.id));
   const proviantDone = PROVIANT_ITEMS.every(i => gefunden.includes(i.id));
-  const schleuderDone = SCHLEUDER_TEILE.every(i => gefunden.includes(i.id));
+  const schleuderCollected = SCHLEUDER_TEILE.every(i => gefunden.includes(i.id));
+  const schleuderDone = schleuderCollected && schleuderGetestet;
   const fischDone = fischeGefangen >= FISCH_ZIEL;
 
   const progress = (kat: ItemKategorie): { found: number; total: number; done: boolean } => {
     if (kat === 'fisch') return { found: fischeGefangen, total: FISCH_ZIEL, done: fischDone };
-    const items = kat === 'floss' ? FLOSS_TEILE : kat === 'proviant' ? PROVIANT_ITEMS : SCHLEUDER_TEILE;
+    if (kat === 'schleuder') {
+      const found = SCHLEUDER_TEILE.filter(i => gefunden.includes(i.id)).length;
+      return { found, total: SCHLEUDER_TEILE.length, done: schleuderDone };
+    }
+    const items = kat === 'floss' ? FLOSS_TEILE : PROVIANT_ITEMS;
     const found = items.filter(i => gefunden.includes(i.id)).length;
     return { found, total: items.length, done: found === items.length };
   };
 
-  const allesGesammelt = flossDone && proviantDone && schleuderDone && fischDone;
+  const allesGesammelt = flossCollected && proviantDone && schleuderDone && fischDone;
   const flossKannGebautWerden = gefunden.some(id => FLOSS_TEILE.find(t => t.id === id));
-  const schleuderKannGebautWerden = gefunden.some(id => SCHLEUDER_TEILE.find(t => t.id === id));
+  // Schleuder workbench button only shows while we still need to build/test
+  const schleuderKannGebautWerden = gefunden.some(id => SCHLEUDER_TEILE.find(t => t.id === id))
+    && !schleuderGetestet;
 
   return (
     <div className="fixed inset-0 overflow-y-auto" style={{ background: '#040b14' }}>

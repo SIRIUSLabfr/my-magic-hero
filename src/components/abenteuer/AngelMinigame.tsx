@@ -14,14 +14,15 @@ interface Props {
 }
 
 type AngelStatus =
-  | 'idle'      // ready to cast
-  | 'casting'   // bobber flying out
-  | 'waiting'   // bobber floating, waiting for bite
-  | 'biting'    // something is biting, player must tap
-  | 'verpasst'  // too late
-  | 'reeling'   // reeling in
-  | 'puzzle'    // word puzzle (sea creatures)
-  | 'muell';    // showing trash message
+  | 'idle'        // ready to cast
+  | 'casting'     // bobber flying out
+  | 'waiting'     // bobber floating, waiting for bite
+  | 'biting'      // something is biting, player must tap to start the pull
+  | 'kraftmesser' // skill game: time the pull-up
+  | 'verpasst'    // missed the timing
+  | 'reeling'     // reeling in successfully
+  | 'puzzle'      // word puzzle (sea creatures)
+  | 'muell';      // showing trash message
 
 interface BobberPos {
   x: number; // percent
@@ -104,8 +105,16 @@ export default function AngelMinigame({
   const handleTapBite = useCallback(() => {
     if (status !== 'biting' || !aktuell) return;
     clearTimers();
+    // Transition to skill game instead of going straight to reeling
+    setStatus('kraftmesser');
+    playTone(500, 0.18, 'sine', 0.15);
+  }, [status, aktuell, playTone]);
+
+  const handleKraftmesserHit = useCallback(() => {
+    if (!aktuell) return;
     setStatus('reeling');
-    playTone(600, 0.2, 'sine', 0.18);
+    playTone(700, 0.2, 'sine', 0.2);
+    playTone(900, 0.2, 'sine', 0.2);
     setTimeout(() => {
       if (aktuell.zaehlt) {
         setStatus('puzzle');
@@ -114,7 +123,13 @@ export default function AngelMinigame({
         setStatus('muell');
       }
     }, 900);
-  }, [status, aktuell, playTone]);
+  }, [aktuell, playTone]);
+
+  const handleKraftmesserMiss = useCallback(() => {
+    setStatus('verpasst');
+    setAktuell(null);
+    playTone(180, 0.3, 'sine', 0.1);
+  }, [playTone]);
 
   const handlePuzzleGeloest = useCallback(() => {
     playChime();
@@ -132,6 +147,18 @@ export default function AngelMinigame({
     setAktuell(null);
     setStatus('idle');
   }, []);
+
+  // Tension-meter skill game
+  if (status === 'kraftmesser' && aktuell) {
+    return (
+      <Kraftmesser
+        item={aktuell}
+        heldenfarbe={heldenfarbe}
+        onHit={handleKraftmesserHit}
+        onMiss={handleKraftmesserMiss}
+      />
+    );
+  }
 
   // Render word puzzle as full screen
   if (status === 'puzzle' && aktuell) {
@@ -542,6 +569,193 @@ export default function AngelMinigame({
           )}
         </AnimatePresence>
       </div>
+    </div>
+  );
+}
+
+// =====================================================================
+// Tension-meter skill game: time the pull-up to land in the gold zone.
+// =====================================================================
+interface KraftmesserProps {
+  item: AngelItem;
+  heldenfarbe: string;
+  onHit: () => void;
+  onMiss: () => void;
+}
+
+function Kraftmesser({ item, heldenfarbe, onHit, onMiss }: KraftmesserProps) {
+  const { playTone } = useSound();
+  const [pos, setPos] = useState(0); // 0..100 indicator position
+  const [resolved, setResolved] = useState<'hit' | 'miss' | null>(null);
+  const animRef = useRef<number | null>(null);
+  const startRef = useRef<number>(0);
+  const decidedRef = useRef(false);
+
+  // Sweet zone: faster items have a narrower zone. Centered around 50.
+  // reaktionszeit: 1100ms (fast) -> small zone, 1700ms (slow) -> large zone.
+  const zoneWidth = Math.round(((item.reaktionszeit - 900) / 800) * 22 + 12); // 12-34
+  const zoneStart = 50 - zoneWidth / 2;
+  const zoneEnd = 50 + zoneWidth / 2;
+
+  // Indicator oscillates with sine wave; speed depends on item
+  const periodMs = Math.max(1100, item.reaktionszeit);
+
+  // Auto-miss after 5 seconds of no decision
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!decidedRef.current) {
+        decidedRef.current = true;
+        setResolved('miss');
+        playTone(180, 0.3, 'sine', 0.1);
+        setTimeout(onMiss, 700);
+      }
+    }, 5500);
+    return () => clearTimeout(timeout);
+  }, [onMiss, playTone]);
+
+  // Animate the indicator with rAF
+  useEffect(() => {
+    startRef.current = performance.now();
+    const tick = () => {
+      const elapsed = performance.now() - startRef.current;
+      const phase = (elapsed % periodMs) / periodMs; // 0..1
+      // Triangle wave for predictable timing
+      const tri = phase < 0.5 ? phase * 2 : 2 - phase * 2; // 0..1..0
+      setPos(tri * 100);
+      if (!decidedRef.current) animRef.current = requestAnimationFrame(tick);
+    };
+    animRef.current = requestAnimationFrame(tick);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [periodMs]);
+
+  const handleZiehen = () => {
+    if (decidedRef.current) return;
+    decidedRef.current = true;
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    if (pos >= zoneStart && pos <= zoneEnd) {
+      setResolved('hit');
+      playTone(750, 0.18, 'sine', 0.2);
+      setTimeout(onHit, 600);
+    } else {
+      setResolved('miss');
+      playTone(180, 0.3, 'sine', 0.1);
+      setTimeout(onMiss, 700);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 overflow-hidden flex flex-col items-center justify-center px-4 py-6"
+      style={{
+        background: 'radial-gradient(ellipse at center, #0c5775 0%, #040d18 100%)',
+        touchAction: 'manipulation',
+      }}
+    >
+      {/* Mystery silhouette wiggling under water */}
+      <motion.div
+        className="text-7xl select-none mb-2"
+        style={{ filter: 'blur(1px) drop-shadow(0 0 18px #00000099)' }}
+        animate={{
+          y: [-4, 4, -4],
+          x: [-3, 3, -3],
+          rotate: [-6, 6, -6],
+        }}
+        transition={{ duration: 0.5, repeat: Infinity }}
+      >
+        ❓
+      </motion.div>
+      <p className="text-body-lg font-display text-foreground text-center" style={{ textShadow: '0 0 12px black' }}>
+        Es zappelt heftig!
+      </p>
+      <p className="text-body font-body text-muted-foreground text-center max-w-sm mb-3">
+        Tippe wenn der Pfeil im <span style={{ color: '#facc15' }}>goldenen</span> Bereich ist!
+      </p>
+
+      {/* Tension meter */}
+      <div className="relative w-full max-w-md h-12 my-2">
+        {/* Bar track */}
+        <div
+          className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-6 rounded-full overflow-hidden"
+          style={{
+            background: 'linear-gradient(90deg, #ef4444 0%, #ef4444 ' + zoneStart + '%, #facc15 ' + zoneStart + '%, #facc15 ' + zoneEnd + '%, #ef4444 ' + zoneEnd + '%, #ef4444 100%)',
+            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.4)',
+            border: '2px solid rgba(255,255,255,0.3)',
+          }}
+        />
+        {/* Sweet zone glow */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 h-8 rounded-full pointer-events-none"
+          style={{
+            left: `${zoneStart}%`,
+            width: `${zoneEnd - zoneStart}%`,
+            background: 'linear-gradient(180deg, transparent, #facc1544, transparent)',
+            boxShadow: '0 0 20px #facc15aa',
+          }}
+        />
+        {/* Indicator (animated arrow) */}
+        <motion.div
+          className="absolute top-1/2 pointer-events-none"
+          style={{ left: `${pos}%`, transform: 'translate(-50%, -50%)' }}
+        >
+          <div
+            className="w-0 h-0"
+            style={{
+              borderLeft: '12px solid transparent',
+              borderRight: '12px solid transparent',
+              borderTop: '20px solid white',
+              filter: 'drop-shadow(0 0 6px white) drop-shadow(0 0 12px white)',
+            }}
+          />
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-12 -mt-12"
+            style={{
+              background: 'white',
+              boxShadow: '0 0 6px white',
+            }}
+          />
+        </motion.div>
+      </div>
+
+      {/* Resolution feedback */}
+      {resolved === 'hit' && (
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1.2, opacity: 1 }}
+          className="text-3xl font-display font-bold mt-2"
+          style={{ color: '#facc15', textShadow: '0 0 24px #facc15' }}
+        >
+          ⭐ Volltreffer!
+        </motion.div>
+      )}
+      {resolved === 'miss' && (
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1.1, opacity: 1 }}
+          className="text-2xl font-display font-bold mt-2"
+          style={{ color: '#ef4444', textShadow: '0 0 16px #ef4444' }}
+        >
+          💨 Entwischt!
+        </motion.div>
+      )}
+
+      {/* Big pull button */}
+      {!resolved && (
+        <motion.button
+          onClick={handleZiehen}
+          className="mt-4 px-10 py-5 rounded-3xl font-display font-bold text-2xl text-white touch-target"
+          style={{
+            background: heldenfarbe,
+            boxShadow: `0 0 24px ${heldenfarbe}, 0 0 60px ${heldenfarbe}88`,
+            touchAction: 'manipulation',
+            minWidth: 220,
+          }}
+          animate={{ scale: [0.97, 1.03, 0.97] }}
+          transition={{ duration: 0.6, repeat: Infinity }}
+          whileTap={{ scale: 0.92 }}
+        >
+          HOCHZIEHEN!
+        </motion.button>
+      )}
     </div>
   );
 }
