@@ -4,14 +4,23 @@ import {
   PROVIANT_ITEMS,
   SCHLEUDER_TEILE,
   FISCH_ZIEL,
+  KATEGORIE_PHASE,
   createEmptyAbenteuerState,
 } from '@/types/abenteuer';
-import type { AbenteuerState, SammelItem } from '@/types/abenteuer';
+import type {
+  AbenteuerState,
+  AbenteuerPhase,
+  ItemKategorie,
+  SammelItem,
+} from '@/types/abenteuer';
 import type { AvatarConfig, Lernfortschritt } from '@/types/profil';
 import IntroCinema from './IntroCinema';
-import HoehlenSzene from './HoehlenSzene';
-import WortLernPuzzle from './WortLernPuzzle';
+import HoehlenHub from './HoehlenHub';
+import StrandSzene from './StrandSzene';
+import WaldSzene from './WaldSzene';
+import FelsenSzene from './FelsenSzene';
 import AngelMinigame from './AngelMinigame';
+import WortLernPuzzle from './WortLernPuzzle';
 import FlossWerkbank from './FlossWerkbank';
 import SchleuderWerkbank from './SchleuderWerkbank';
 import EndCutscene from './EndCutscene';
@@ -42,6 +51,8 @@ export default function MeeresAbenteuer({
 }: Props) {
   const [state, setState] = useState<AbenteuerState>(createEmptyAbenteuerState);
   const [earnedStaub, setEarnedStaub] = useState(0);
+  /** Where to return after solving a word puzzle */
+  const [puzzleRueckkehr, setPuzzleRueckkehr] = useState<AbenteuerPhase>('hub');
 
   const grantStaub = useCallback((amount: number) => {
     setEarnedStaub(s => s + amount);
@@ -52,12 +63,25 @@ export default function MeeresAbenteuer({
   }, [lernfortschritt, onUpdate]);
 
   const handleStart = useCallback(() => {
-    setState(s => ({ ...s, phase: 'hoehle' }));
+    setState(s => ({ ...s, phase: 'hub' }));
+  }, []);
+
+  // ===== Hub navigation =====
+  const handleTaskWaehlen = useCallback((kat: ItemKategorie) => {
+    setState(s => ({ ...s, phase: KATEGORIE_PHASE[kat] }));
+  }, []);
+
+  const handleZurueckZumHub = useCallback(() => {
+    setState(s => ({ ...s, phase: 'hub' }));
   }, []);
 
   // ===== Item collection (floss / proviant / schleuder) =====
   const handleItemAufnehmen = useCallback((item: SammelItem) => {
-    setState(s => ({ ...s, aktuellesItem: item, phase: 'wortpuzzle' }));
+    setState(s => {
+      // Remember which scene we came from to return to
+      setPuzzleRueckkehr(s.phase);
+      return { ...s, aktuellesItem: item, phase: 'wortpuzzle' };
+    });
   }, []);
 
   const handlePuzzleGeloest = useCallback(() => {
@@ -65,28 +89,20 @@ export default function MeeresAbenteuer({
       if (!s.aktuellesItem) return s;
       const id = s.aktuellesItem.id;
       const gefunden = s.gefunden.includes(id) ? s.gefunden : [...s.gefunden, id];
-      return { ...s, gefunden, aktuellesItem: null, phase: 'hoehle' };
+      return { ...s, gefunden, aktuellesItem: null, phase: puzzleRueckkehr };
     });
     grantStaub(STAUB_PRO_ITEM);
-  }, [grantStaub]);
+  }, [grantStaub, puzzleRueckkehr]);
 
   const handlePuzzleAbbrechen = useCallback(() => {
-    setState(s => ({ ...s, aktuellesItem: null, phase: 'hoehle' }));
-  }, []);
+    setState(s => ({ ...s, aktuellesItem: null, phase: puzzleRueckkehr }));
+  }, [puzzleRueckkehr]);
 
   // ===== Fishing =====
-  const handleAngelnStart = useCallback(() => {
-    setState(s => ({ ...s, phase: 'angeln' }));
-  }, []);
-
   const handleFischGefangen = useCallback(() => {
     setState(s => ({ ...s, fischeGefangen: s.fischeGefangen + 1 }));
     grantStaub(STAUB_PRO_FISCH);
   }, [grantStaub]);
-
-  const handleAngelnFertig = useCallback(() => {
-    setState(s => ({ ...s, phase: 'hoehle' }));
-  }, []);
 
   // ===== Floss-Werkbank =====
   const handleZurFlossWerkbank = useCallback(() => {
@@ -101,7 +117,6 @@ export default function MeeresAbenteuer({
   }, []);
 
   const handleFlossFertig = useCallback(() => {
-    // Check prerequisites: all categories complete
     const flossDone = FLOSS_TEILE.every(i => state.gefunden.includes(i.id));
     const proviantDone = PROVIANT_ITEMS.every(i => state.gefunden.includes(i.id));
     const schleuderDone = SCHLEUDER_TEILE.every(i => state.gefunden.includes(i.id));
@@ -109,8 +124,7 @@ export default function MeeresAbenteuer({
     const allesGesammelt = flossDone && proviantDone && schleuderDone && fischDone;
 
     if (!allesGesammelt) {
-      // Even if raft is built, ensure we wait until everything is gathered
-      setState(s => ({ ...s, phase: 'hoehle' }));
+      setState(s => ({ ...s, phase: 'hub' }));
       return;
     }
 
@@ -136,13 +150,9 @@ export default function MeeresAbenteuer({
   }, []);
 
   const handleSchleuderFertig = useCallback(() => {
-    setState(s => ({ ...s, phase: 'hoehle' }));
+    setState(s => ({ ...s, phase: 'hub' }));
     grantStaub(STAUB_FUER_SCHLEUDER);
   }, [grantStaub]);
-
-  const handleZurueckZurHoehle = useCallback(() => {
-    setState(s => ({ ...s, phase: 'hoehle' }));
-  }, []);
 
   // ===== Cutscenes / Level transitions =====
   const handleAusFahrtFertig = useCallback(() => {
@@ -190,13 +200,43 @@ export default function MeeresAbenteuer({
         </div>
       );
 
+    case 'strand':
+      return (
+        <StrandSzene
+          heldenfarbe={heldenfarbe}
+          gefunden={state.gefunden}
+          onItemAufnehmen={handleItemAufnehmen}
+          onZurueck={handleZurueckZumHub}
+        />
+      );
+
+    case 'wald':
+      return (
+        <WaldSzene
+          heldenfarbe={heldenfarbe}
+          gefunden={state.gefunden}
+          onItemAufnehmen={handleItemAufnehmen}
+          onZurueck={handleZurueckZumHub}
+        />
+      );
+
+    case 'felsen':
+      return (
+        <FelsenSzene
+          heldenfarbe={heldenfarbe}
+          gefunden={state.gefunden}
+          onItemAufnehmen={handleItemAufnehmen}
+          onZurueck={handleZurueckZumHub}
+        />
+      );
+
     case 'angeln':
       return (
         <AngelMinigame
           fischeGefangen={state.fischeGefangen}
           heldenfarbe={heldenfarbe}
           onFischGefangen={handleFischGefangen}
-          onFertig={handleAngelnFertig}
+          onFertig={handleZurueckZumHub}
         />
       );
 
@@ -208,7 +248,7 @@ export default function MeeresAbenteuer({
           heldenfarbe={heldenfarbe}
           onPlatziert={handleFlossPlatziert}
           onFertig={handleFlossFertig}
-          onZurueck={handleZurueckZurHoehle}
+          onZurueck={handleZurueckZumHub}
         />
       );
 
@@ -220,7 +260,7 @@ export default function MeeresAbenteuer({
           heldenfarbe={heldenfarbe}
           onPlatziert={handleSchleuderPlatziert}
           onFertig={handleSchleuderFertig}
-          onZurueck={handleZurueckZurHoehle}
+          onZurueck={handleZurueckZumHub}
         />
       );
 
@@ -243,7 +283,7 @@ export default function MeeresAbenteuer({
           avatarConfig={avatarConfig}
           heldenfarbe={heldenfarbe}
           onSieg={handlePiratenSieg}
-          onZurueck={handleZurueckZurHoehle}
+          onZurueck={handleZurueckZumHub}
         />
       );
 
@@ -260,17 +300,16 @@ export default function MeeresAbenteuer({
         />
       );
 
-    case 'hoehle':
+    case 'hub':
     default:
       return (
-        <HoehlenSzene
+        <HoehlenHub
           avatarConfig={avatarConfig}
           heldenfarbe={heldenfarbe}
           gefunden={state.gefunden}
           fischeGefangen={state.fischeGefangen}
-          onItemAufnehmen={handleItemAufnehmen}
-          onAngeln={handleAngelnStart}
           onZurueck={onZurueck}
+          onTaskWaehlen={handleTaskWaehlen}
           onZurFlossWerkbank={handleZurFlossWerkbank}
           onZurSchleuderWerkbank={handleZurSchleuderWerkbank}
         />

@@ -161,6 +161,70 @@ export const FISCH_ITEM: SammelItem = {
   versteckt: { x: 0, y: 0 }, // unused for fishing minigame
 };
 
+/** Things that can bite at the line during fishing */
+export type AngelItemTyp = 'fisch' | 'oktopus' | 'seestern' | 'krabbe' | 'muell';
+
+export interface AngelItem {
+  typ: AngelItemTyp;
+  emoji: string;
+  /** Word to spell after catching (only when zaehlt = true) */
+  wort: string;
+  label: string;
+  hinweis: string;
+  /** Counts toward the "catch X creatures" goal */
+  zaehlt: boolean;
+  /** Reaction window in ms once it bites */
+  reaktionszeit: number;
+}
+
+export const ANGEL_ITEMS: AngelItem[] = [
+  {
+    typ: 'fisch',
+    emoji: '🐟',
+    wort: 'FISCH',
+    label: 'Fisch',
+    hinweis: 'Schwimmt im Wasser, hat Flossen.',
+    zaehlt: true,
+    reaktionszeit: 1400,
+  },
+  {
+    typ: 'oktopus',
+    emoji: '🐙',
+    wort: 'OKTOPUS',
+    label: 'Oktopus',
+    hinweis: 'Hat acht Tentakel.',
+    zaehlt: true,
+    reaktionszeit: 1100,
+  },
+  {
+    typ: 'seestern',
+    emoji: '⭐',
+    wort: 'STERN',
+    label: 'Seestern',
+    hinweis: 'Hat fünf Zacken und lebt im Meer.',
+    zaehlt: true,
+    reaktionszeit: 1500,
+  },
+  {
+    typ: 'krabbe',
+    emoji: '🦀',
+    wort: 'KRABBE',
+    label: 'Krabbe',
+    hinweis: 'Läuft seitwärts, hat Scheren.',
+    zaehlt: true,
+    reaktionszeit: 1100,
+  },
+  {
+    typ: 'muell',
+    emoji: '🗑️',
+    wort: 'MUELL',
+    label: 'Müll',
+    hinweis: 'Igitt — gehört nicht ins Meer!',
+    zaehlt: false,
+    reaktionszeit: 1700,
+  },
+];
+
 export const ALLE_SAMMEL_ITEMS: SammelItem[] = [
   ...FLOSS_TEILE,
   ...PROVIANT_ITEMS,
@@ -178,9 +242,12 @@ export const KATEGORIE_INFO: Record<ItemKategorie, { label: string; emoji: strin
 
 export type AbenteuerPhase =
   | 'intro'
-  | 'hoehle'
-  | 'wortpuzzle'
+  | 'hub'
+  | 'strand'
+  | 'wald'
+  | 'felsen'
   | 'angeln'
+  | 'wortpuzzle'
   | 'flossWerkbank'
   | 'schleuderWerkbank'
   | 'cutsceneAusFahrt'
@@ -210,6 +277,14 @@ export const createEmptyAbenteuerState = (): AbenteuerState => ({
   fischeGefangen: 0,
   phase: 'intro',
 });
+
+/** Where the hub returns from after each task screen */
+export const KATEGORIE_PHASE: Record<ItemKategorie, AbenteuerPhase> = {
+  floss: 'strand',
+  proviant: 'wald',
+  schleuder: 'felsen',
+  fisch: 'angeln',
+};
 
 // Pirates for level 2
 export interface Pirat {
