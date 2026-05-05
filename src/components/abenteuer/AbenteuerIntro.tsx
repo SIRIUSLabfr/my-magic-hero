@@ -16,7 +16,7 @@ export default function AbenteuerIntro({ avatarConfig, heldenfarbe, heldName, on
 
   return (
     <div
-      className="fixed inset-0 overflow-hidden flex flex-col items-center justify-center px-8"
+      className="fixed inset-0 overflow-y-auto flex flex-col items-center justify-center px-6 py-8"
       style={{ background: 'radial-gradient(ellipse at center, #1a3050 0%, #050a14 100%)' }}
     >
       {/* Lightning / lightning effect */}
@@ -82,13 +82,13 @@ export default function AbenteuerIntro({ avatarConfig, heldenfarbe, heldName, on
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 flex flex-col items-center gap-6 max-w-lg text-center"
+        className="relative z-10 flex flex-col items-center gap-4 max-w-lg text-center my-auto"
       >
         <motion.div
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <HeldAvatar config={avatarConfig} size={180} />
+          <HeldAvatar config={avatarConfig} size={120} showBody={false} />
         </motion.div>
 
         <h1 className="text-hero font-display" style={{ color: heldenfarbe, textShadow: `0 0 24px ${heldenfarbe}80` }}>
@@ -104,7 +104,7 @@ export default function AbenteuerIntro({ avatarConfig, heldenfarbe, heldName, on
           um wieder hinaus zu segeln.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+        <div className="flex flex-row gap-3 mt-2 flex-wrap justify-center">
           <button
             onClick={onZurueck}
             className="text-muted-foreground text-body-lg font-display px-6 py-3 rounded-2xl bg-card active:scale-95"
