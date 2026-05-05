@@ -8,9 +8,21 @@ interface Props {
   heldenfarbe: string;
   sternenstaub: number;
   onFertig: () => void;
+  /** Optional next-level transition message + label */
+  weiterLabel?: string;
+  titel?: string;
+  untertitel?: string;
 }
 
-export default function EndCutscene({ avatarConfig, heldenfarbe, sternenstaub, onFertig }: Props) {
+export default function EndCutscene({
+  avatarConfig,
+  heldenfarbe,
+  sternenstaub,
+  onFertig,
+  weiterLabel = 'Heimkehren 🏠',
+  titel = '✨ Geschafft! ✨',
+  untertitel = 'Du hast aus der Höhle herausgesegelt!',
+}: Props) {
   return (
     <div
       className="fixed inset-0 overflow-hidden"
@@ -152,7 +164,7 @@ export default function EndCutscene({ avatarConfig, heldenfarbe, sternenstaub, o
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          ✨ Geschafft! ✨
+          {titel}
         </motion.h1>
         <motion.p
           className="text-body-lg font-display text-foreground mt-2"
@@ -160,7 +172,7 @@ export default function EndCutscene({ avatarConfig, heldenfarbe, sternenstaub, o
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.8 }}
         >
-          Du hast aus der Höhle herausgesegelt!
+          {untertitel}
         </motion.p>
       </div>
 
@@ -181,7 +193,7 @@ export default function EndCutscene({ avatarConfig, heldenfarbe, sternenstaub, o
           </span>
         </div>
         <MagicButton onClick={onFertig} variant="gold" size="lg">
-          Heimkehren 🏠
+          {weiterLabel}
         </MagicButton>
       </motion.div>
     </div>

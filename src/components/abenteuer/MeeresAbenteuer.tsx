@@ -1,12 +1,21 @@
 import { useState, useCallback } from 'react';
-import { FLOSS_TEILE, createEmptyAbenteuerState } from '@/types/abenteuer';
-import type { AbenteuerState, FlossTeilId } from '@/types/abenteuer';
+import {
+  FLOSS_TEILE,
+  PROVIANT_ITEMS,
+  SCHLEUDER_TEILE,
+  FISCH_ZIEL,
+  createEmptyAbenteuerState,
+} from '@/types/abenteuer';
+import type { AbenteuerState, SammelItem } from '@/types/abenteuer';
 import type { AvatarConfig, Lernfortschritt } from '@/types/profil';
-import AbenteuerIntro from './AbenteuerIntro';
+import IntroCinema from './IntroCinema';
 import HoehlenSzene from './HoehlenSzene';
 import WortLernPuzzle from './WortLernPuzzle';
+import AngelMinigame from './AngelMinigame';
 import FlossWerkbank from './FlossWerkbank';
+import SchleuderWerkbank from './SchleuderWerkbank';
 import EndCutscene from './EndCutscene';
+import PiratenLevel from './PiratenLevel';
 
 interface Props {
   avatarConfig: AvatarConfig;
@@ -17,8 +26,11 @@ interface Props {
   onZurueck: () => void;
 }
 
-const STAUB_PRO_TEIL = 4;
+const STAUB_PRO_ITEM = 4;
+const STAUB_PRO_FISCH = 4;
 const STAUB_FUER_FLOSS = 10;
+const STAUB_FUER_SCHLEUDER = 8;
+const STAUB_FUER_SIEG = 20;
 
 export default function MeeresAbenteuer({
   avatarConfig,
@@ -31,70 +43,126 @@ export default function MeeresAbenteuer({
   const [state, setState] = useState<AbenteuerState>(createEmptyAbenteuerState);
   const [earnedStaub, setEarnedStaub] = useState(0);
 
-  const aktuellesTeil = state.aktuellesTeil
-    ? FLOSS_TEILE.find(t => t.id === state.aktuellesTeil) ?? null
-    : null;
-
-  const handleTeilGefunden = useCallback((id: FlossTeilId) => {
-    // Open the word puzzle for this piece
-    setState(s => ({ ...s, aktuellesTeil: id, phase: 'wortpuzzle' }));
-  }, []);
-
-  const handlePuzzleGeloest = useCallback(() => {
-    setState(s => {
-      const id = s.aktuellesTeil;
-      if (!id) return s;
-      const gefunden = s.gefunden.includes(id) ? s.gefunden : [...s.gefunden, id];
-      return { ...s, gefunden, aktuellesTeil: null, phase: 'hoehle' };
-    });
-    setEarnedStaub(staub => staub + STAUB_PRO_TEIL);
-    // Persist progress
-    const next: Lernfortschritt = {
+  const grantStaub = useCallback((amount: number) => {
+    setEarnedStaub(s => s + amount);
+    onUpdate({
       ...lernfortschritt,
-      sternenstaub: (lernfortschritt.sternenstaub || 0) + STAUB_PRO_TEIL,
-    };
-    onUpdate(next);
-  }, [lernfortschritt, onUpdate]);
-
-  const handlePuzzleAbbrechen = useCallback(() => {
-    setState(s => ({ ...s, aktuellesTeil: null, phase: 'hoehle' }));
-  }, []);
-
-  const handleZurFloss = useCallback(() => {
-    setState(s => ({ ...s, phase: 'werkbank' }));
-  }, []);
-
-  const handleZurueckZurHoehle = useCallback(() => {
-    setState(s => ({ ...s, phase: 'hoehle' }));
-  }, []);
-
-  const handlePlatziert = useCallback((id: FlossTeilId) => {
-    setState(s => {
-      const platziert = s.platziert.includes(id) ? s.platziert : [...s.platziert, id];
-      return { ...s, platziert };
+      sternenstaub: (lernfortschritt.sternenstaub || 0) + amount,
     });
-  }, []);
-
-  const handleFlossFertig = useCallback(() => {
-    setState(s => ({ ...s, phase: 'cutscene' }));
-    setEarnedStaub(st => st + STAUB_FUER_FLOSS);
-    const next: Lernfortschritt = {
-      ...lernfortschritt,
-      sessionsGesamt: lernfortschritt.sessionsGesamt + 1,
-      sternenstaub: (lernfortschritt.sternenstaub || 0) + STAUB_FUER_FLOSS,
-    };
-    onUpdate(next);
   }, [lernfortschritt, onUpdate]);
 
   const handleStart = useCallback(() => {
     setState(s => ({ ...s, phase: 'hoehle' }));
   }, []);
 
-  // Render current phase
+  // ===== Item collection (floss / proviant / schleuder) =====
+  const handleItemAufnehmen = useCallback((item: SammelItem) => {
+    setState(s => ({ ...s, aktuellesItem: item, phase: 'wortpuzzle' }));
+  }, []);
+
+  const handlePuzzleGeloest = useCallback(() => {
+    setState(s => {
+      if (!s.aktuellesItem) return s;
+      const id = s.aktuellesItem.id;
+      const gefunden = s.gefunden.includes(id) ? s.gefunden : [...s.gefunden, id];
+      return { ...s, gefunden, aktuellesItem: null, phase: 'hoehle' };
+    });
+    grantStaub(STAUB_PRO_ITEM);
+  }, [grantStaub]);
+
+  const handlePuzzleAbbrechen = useCallback(() => {
+    setState(s => ({ ...s, aktuellesItem: null, phase: 'hoehle' }));
+  }, []);
+
+  // ===== Fishing =====
+  const handleAngelnStart = useCallback(() => {
+    setState(s => ({ ...s, phase: 'angeln' }));
+  }, []);
+
+  const handleFischGefangen = useCallback(() => {
+    setState(s => ({ ...s, fischeGefangen: s.fischeGefangen + 1 }));
+    grantStaub(STAUB_PRO_FISCH);
+  }, [grantStaub]);
+
+  const handleAngelnFertig = useCallback(() => {
+    setState(s => ({ ...s, phase: 'hoehle' }));
+  }, []);
+
+  // ===== Floss-Werkbank =====
+  const handleZurFlossWerkbank = useCallback(() => {
+    setState(s => ({ ...s, phase: 'flossWerkbank' }));
+  }, []);
+
+  const handleFlossPlatziert = useCallback((id: string) => {
+    setState(s => {
+      if (s.flossPlatziert.includes(id)) return s;
+      return { ...s, flossPlatziert: [...s.flossPlatziert, id] };
+    });
+  }, []);
+
+  const handleFlossFertig = useCallback(() => {
+    // Check prerequisites: all categories complete
+    const flossDone = FLOSS_TEILE.every(i => state.gefunden.includes(i.id));
+    const proviantDone = PROVIANT_ITEMS.every(i => state.gefunden.includes(i.id));
+    const schleuderDone = SCHLEUDER_TEILE.every(i => state.gefunden.includes(i.id));
+    const fischDone = state.fischeGefangen >= FISCH_ZIEL;
+    const allesGesammelt = flossDone && proviantDone && schleuderDone && fischDone;
+
+    if (!allesGesammelt) {
+      // Even if raft is built, ensure we wait until everything is gathered
+      setState(s => ({ ...s, phase: 'hoehle' }));
+      return;
+    }
+
+    setState(s => ({ ...s, phase: 'cutsceneAusFahrt' }));
+    grantStaub(STAUB_FUER_FLOSS);
+    onUpdate({
+      ...lernfortschritt,
+      sessionsGesamt: lernfortschritt.sessionsGesamt + 1,
+      sternenstaub: (lernfortschritt.sternenstaub || 0) + STAUB_FUER_FLOSS,
+    });
+  }, [state.gefunden, state.fischeGefangen, lernfortschritt, onUpdate, grantStaub]);
+
+  // ===== Schleuder-Werkbank =====
+  const handleZurSchleuderWerkbank = useCallback(() => {
+    setState(s => ({ ...s, phase: 'schleuderWerkbank' }));
+  }, []);
+
+  const handleSchleuderPlatziert = useCallback((id: string) => {
+    setState(s => {
+      if (s.schleuderPlatziert.includes(id)) return s;
+      return { ...s, schleuderPlatziert: [...s.schleuderPlatziert, id] };
+    });
+  }, []);
+
+  const handleSchleuderFertig = useCallback(() => {
+    setState(s => ({ ...s, phase: 'hoehle' }));
+    grantStaub(STAUB_FUER_SCHLEUDER);
+  }, [grantStaub]);
+
+  const handleZurueckZurHoehle = useCallback(() => {
+    setState(s => ({ ...s, phase: 'hoehle' }));
+  }, []);
+
+  // ===== Cutscenes / Level transitions =====
+  const handleAusFahrtFertig = useCallback(() => {
+    setState(s => ({ ...s, phase: 'piraten' }));
+  }, []);
+
+  const handlePiratenSieg = useCallback(() => {
+    setState(s => ({ ...s, phase: 'cutsceneSieg' }));
+    grantStaub(STAUB_FUER_SIEG);
+  }, [grantStaub]);
+
+  const handleSiegFertig = useCallback(() => {
+    onZurueck();
+  }, [onZurueck]);
+
+  // ===== Render =====
   switch (state.phase) {
     case 'intro':
       return (
-        <AbenteuerIntro
+        <IntroCinema
           avatarConfig={avatarConfig}
           heldenfarbe={heldenfarbe}
           heldName={heldName}
@@ -104,19 +172,17 @@ export default function MeeresAbenteuer({
       );
 
     case 'wortpuzzle':
-      if (!aktuellesTeil) {
-        return null;
-      }
+      if (!state.aktuellesItem) return null;
       return (
         <div
           className="fixed inset-0 overflow-hidden"
           style={{ background: 'radial-gradient(ellipse at center, #1a3050 0%, #050a14 100%)' }}
         >
           <WortLernPuzzle
-            wort={aktuellesTeil.wort}
-            emoji={aktuellesTeil.emoji}
-            label={aktuellesTeil.label}
-            hinweis={aktuellesTeil.hinweis}
+            wort={state.aktuellesItem.wort}
+            emoji={state.aktuellesItem.emoji}
+            label={state.aktuellesItem.label}
+            hinweis={state.aktuellesItem.hinweis}
             heldenfarbe={heldenfarbe}
             onGeloest={handlePuzzleGeloest}
             onAbbrechen={handlePuzzleAbbrechen}
@@ -124,25 +190,73 @@ export default function MeeresAbenteuer({
         </div>
       );
 
-    case 'werkbank':
+    case 'angeln':
+      return (
+        <AngelMinigame
+          fischeGefangen={state.fischeGefangen}
+          heldenfarbe={heldenfarbe}
+          onFischGefangen={handleFischGefangen}
+          onFertig={handleAngelnFertig}
+        />
+      );
+
+    case 'flossWerkbank':
       return (
         <FlossWerkbank
           gefunden={state.gefunden}
-          platziert={state.platziert}
+          platziert={state.flossPlatziert}
           heldenfarbe={heldenfarbe}
-          onPlatziert={handlePlatziert}
+          onPlatziert={handleFlossPlatziert}
           onFertig={handleFlossFertig}
           onZurueck={handleZurueckZurHoehle}
         />
       );
 
-    case 'cutscene':
+    case 'schleuderWerkbank':
+      return (
+        <SchleuderWerkbank
+          gefunden={state.gefunden}
+          platziert={state.schleuderPlatziert}
+          heldenfarbe={heldenfarbe}
+          onPlatziert={handleSchleuderPlatziert}
+          onFertig={handleSchleuderFertig}
+          onZurueck={handleZurueckZurHoehle}
+        />
+      );
+
+    case 'cutsceneAusFahrt':
       return (
         <EndCutscene
           avatarConfig={avatarConfig}
           heldenfarbe={heldenfarbe}
           sternenstaub={earnedStaub}
-          onFertig={onZurueck}
+          titel="Endlich frei!"
+          untertitel="...doch dann tauchen Piraten am Horizont auf!"
+          weiterLabel="🏴‍☠️ Den Piraten begegnen"
+          onFertig={handleAusFahrtFertig}
+        />
+      );
+
+    case 'piraten':
+      return (
+        <PiratenLevel
+          avatarConfig={avatarConfig}
+          heldenfarbe={heldenfarbe}
+          onSieg={handlePiratenSieg}
+          onZurueck={handleZurueckZurHoehle}
+        />
+      );
+
+    case 'cutsceneSieg':
+      return (
+        <EndCutscene
+          avatarConfig={avatarConfig}
+          heldenfarbe={heldenfarbe}
+          sternenstaub={earnedStaub}
+          titel="✨ Heldin der Meere! ✨"
+          untertitel="Piraten verjagt. Du segelst nach Hause."
+          weiterLabel="Heimkehren 🏠"
+          onFertig={handleSiegFertig}
         />
       );
 
@@ -153,9 +267,12 @@ export default function MeeresAbenteuer({
           avatarConfig={avatarConfig}
           heldenfarbe={heldenfarbe}
           gefunden={state.gefunden}
-          onTeilGefunden={handleTeilGefunden}
+          fischeGefangen={state.fischeGefangen}
+          onItemAufnehmen={handleItemAufnehmen}
+          onAngeln={handleAngelnStart}
           onZurueck={onZurueck}
-          onZurFloss={handleZurFloss}
+          onZurFlossWerkbank={handleZurFlossWerkbank}
+          onZurSchleuderWerkbank={handleZurSchleuderWerkbank}
         />
       );
   }
