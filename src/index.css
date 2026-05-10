@@ -1,176 +1,85 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 280 40% 12%;
-    --foreground: 300 100% 97%;
-
-    --card: 280 35% 18%;
-    --card-foreground: 300 100% 97%;
-
-    --popover: 280 35% 18%;
-    --popover-foreground: 300 100% 97%;
-
-    --primary: 345 85% 55%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 280 60% 50%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 280 30% 22%;
-    --muted-foreground: 280 20% 70%;
-
-    --accent: 45 100% 60%;
-    --accent-foreground: 280 40% 12%;
-
-    --destructive: 0 0% 0%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 280 30% 30%;
-    --input: 280 30% 25%;
-    --ring: 345 85% 55%;
-
-    --radius: 1.5rem;
-
-    /* Heldenschule custom tokens */
-    --magic-red: 345 85% 55%;
-    --magic-pink: 330 80% 65%;
-    --magic-purple: 280 60% 50%;
-    --magic-gold: 45 100% 60%;
-    --magic-blue: 220 80% 55%;
-    --magic-green: 150 60% 45%;
-
-    --glow-primary: 0 0 20px hsl(345 85% 55% / 0.5), 0 0 60px hsl(345 85% 55% / 0.2);
-    --glow-gold: 0 0 20px hsl(45 100% 60% / 0.5), 0 0 60px hsl(45 100% 60% / 0.2);
-    --glow-purple: 0 0 20px hsl(280 60% 50% / 0.5), 0 0 60px hsl(280 60% 50% / 0.2);
-
-    --gradient-magic: linear-gradient(135deg, hsl(345 85% 55%), hsl(280 60% 50%));
-    --gradient-night: linear-gradient(180deg, hsl(280 40% 8%), hsl(280 40% 16%));
-
-    --font-display: 'Fredoka', sans-serif;
-    --font-body: 'Nunito', sans-serif;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-body);
-    -webkit-tap-highlight-color: transparent;
+    font-family: 'Quicksand', sans-serif;
+    background: #1a0e2a;
+    color: #faf3e7;
+    touch-action: manipulation;
+  }
+
+  img {
+    -webkit-user-drag: none;
     -webkit-touch-callout: none;
     user-select: none;
   }
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+@layer components {
+  /* Goldener Schimmer für aufleuchtende Bücher in den Regalen */
+  .hotspot-glow {
+    box-shadow:
+      0 0 20px 6px rgba(245, 215, 124, 0.45),
+      0 0 60px 18px rgba(245, 215, 124, 0.18);
+  }
+
+  .hotspot-glow-strong {
+    box-shadow:
+      0 0 30px 10px rgba(245, 215, 124, 0.75),
+      0 0 90px 30px rgba(245, 215, 124, 0.4),
+      0 0 160px 60px rgba(180, 140, 255, 0.25);
+  }
+
+  /* Adventure-Portal: weicher zentraler Lichtkern */
+  .portal-glow {
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 240, 180, 0.95) 0%,
+      rgba(255, 200, 130, 0.6) 30%,
+      rgba(180, 140, 255, 0.3) 60%,
+      transparent 80%
+    );
   }
 }
 
-@layer utilities {
-  .touch-target {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    min-width: 80px;
-    min-height: 80px;
-  }
-
-  .glow-primary {
-    box-shadow: var(--glow-primary);
-  }
-
-  .glow-gold {
-    box-shadow: var(--glow-gold);
-  }
-
-  .glow-purple {
-    box-shadow: var(--glow-purple);
-  }
-
-  .text-display {
-    font-family: var(--font-display);
-  }
-
-  .text-body {
-    font-family: var(--font-body);
-  }
+/* CSS-only Sparkles */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
+  opacity: 0;
 }
 
-/* Particle animation */
-@keyframes float-particle {
-  0%, 100% {
-    transform: translateY(0) translateX(0) scale(1);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(var(--drift, 20px)) scale(0.5);
-    opacity: 0;
-  }
-}
-
-@keyframes gentle-pulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: brightness(1);
-  }
-  50% {
-    transform: scale(1.05);
-    filter: brightness(1.15);
-  }
-}
-
-@keyframes soft-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px hsl(var(--magic-gold) / 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px hsl(var(--magic-gold) / 0.6), 0 0 60px hsl(var(--magic-gold) / 0.2);
-  }
-}
-
-@keyframes screen-enter {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes confetti-fall {
+@keyframes sparkle-drift {
   0% {
-    transform: translateY(-10vh) rotate(0deg);
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
     opacity: 1;
   }
   100% {
-    transform: translateY(100vh) rotate(720deg);
     opacity: 0;
-  }
-}
-
-@keyframes card-flip {
-  0% {
-    transform: perspective(800px) rotateY(0deg);
-  }
-  50% {
-    transform: perspective(800px) rotateY(90deg);
-  }
-  100% {
-    transform: perspective(800px) rotateY(0deg) scale(1.05);
+    transform: translate(var(--dx, 20px), var(--dy, -30px)) scale(1.4);
   }
 }
